@@ -8,6 +8,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ConnectionPage from "./pages/ConnectionPage";
+import SupportMapPage from "./pages/MapPage";
 
 /**
  * App — Root application component
@@ -40,7 +41,7 @@ export default function App() {
               {/* ── Phase 3: Core Modules ── */}
               {/* <Route path="/quyen-loi" element={<BenefitLookupPage />} /> */}
               <Route path="/ket-noi" element={<ConnectionPage />} />
-              {/* <Route path="/ban-do" element={<SupportMapPage />} /> */}
+              <Route path="/ban-do" element={<SupportMapPage />} />
               {/* <Route path="/tin-tuc" element={<NewsPage />} /> */}
 
               {/* ── Phase 5: Admin ── */}
