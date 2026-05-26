@@ -77,85 +77,53 @@
    Maximum contrast for users with severe visual impairments.
    Black bg + white/yellow text, per DESIGN.md specification.
    ═══════════════════════════════════════════════════ */
-.high-contrast body {
-  color: #ffffff;
-  background-color: #000000;
+html.high-contrast,
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
 }
 
-.high-contrast header,
-.high-contrast footer,
-.high-contrast aside,
-.high-contrast nav {
+/* Force all container boxes, cards, headers, and sidebars to solid black */
+html.high-contrast header,
+html.high-contrast main,
+html.high-contrast aside,
+html.high-contrast footer,
+html.high-contrast div,
+html.high-contrast section,
+html.high-contrast article {
   background-color: #000000 !important;
   border-color: #ffffff !important;
 }
 
-.high-contrast a,
-.high-contrast button {
-  color: #ffd700 !important;
-}
-
-.high-contrast a:hover,
-.high-contrast button:hover {
-  text-decoration: underline;
-}
-
-.high-contrast input,
-.high-contrast select,
-.high-contrast textarea {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #ffffff !important;
-}
-
-.high-contrast h1,
-.high-contrast h2,
-.high-contrast h3,
-.high-contrast h4,
-.high-contrast h5,
-.high-contrast h6 {
+/* Force all text, titles, descriptions, and labels to either neon yellow or white */
+html.high-contrast h1,
+html.high-contrast h2,
+html.high-contrast h3,
+html.high-contrast h4,
+html.high-contrast p,
+html.high-contrast span,
+html.high-contrast label,
+html.high-contrast a {
   color: #ffffff !important;
 }
 
-.high-contrast p,
-.high-contrast span,
-.high-contrast li,
-.high-contrast label {
+/* Distinguish prominent active interactive elements/buttons/sidebar icons with bright yellow */
+html.high-contrast .active,
+html.high-contrast [aria-current="page"],
+html.high-contrast [aria-pressed="true"],
+html.high-contrast button:focus-visible,
+html.high-contrast a:focus-visible {
+  color: #ffff00 !important;
+  outline: 4px solid #ffff00 !important;
+}
+
+/* Input elements styling in high-contrast */
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  background-color: #000000 !important;
   color: #ffffff !important;
-}
-
-/* High-contrast cards: white border, black bg */
-.high-contrast .service-card {
-  background-color: #0a0a0a !important;
-  border: 3px solid #ffffff !important;
-}
-
-.high-contrast .service-card h3 {
-  color: #ffd700 !important;
-}
-
-/* High-contrast CTA banner */
-.high-contrast .cta-banner {
-  background-color: #1a1a1a !important;
-  border: 3px solid #ffd700 !important;
-}
-
-/* High-contrast sidebar */
-.high-contrast .accessibility-sidebar {
-  background-color: #0a0a0a !important;
-  border-right: 3px solid #ffffff !important;
-}
-
-.high-contrast .accessibility-sidebar button {
-  color: #ffffff !important;
-  border: 2px solid #555555;
-}
-
-.high-contrast .accessibility-sidebar button:hover,
-.high-contrast .accessibility-sidebar button[aria-pressed="true"] {
-  background-color: #ffd700 !important;
-  color: #000000 !important;
-  border-color: #ffd700 !important;
+  border: 2px solid #ffffff !important;
 }
 
 /* ═══════════════════════════════════════════════════
