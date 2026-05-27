@@ -9,6 +9,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ConnectionPage from "./pages/ConnectionPage";
 import SupportMapPage from "./pages/MapPage";
+import RightsPage from "./pages/RightsPage";
 
 /**
  * App — Root application component
@@ -39,7 +40,7 @@ export default function App() {
               <Route path="/ho-so" element={<ProfilePage />} />
 
               {/* ── Phase 3: Core Modules ── */}
-              {/* <Route path="/quyen-loi" element={<BenefitLookupPage />} /> */}
+              <Route path="/quyen-loi" element={<RightsPage />} />
               <Route path="/ket-noi" element={<ConnectionPage />} />
               <Route path="/ban-do" element={<SupportMapPage />} />
               {/* <Route path="/tin-tuc" element={<NewsPage />} /> */}
