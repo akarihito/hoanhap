@@ -32,6 +32,18 @@ const TEXT_SELECTOR = "h1, h2, h3, h4, h5, h6, p, li, td, th, label, figcaption,
 function extractText(el) {
   if (!el) return "";
 
+  // If the element itself is hidden, don't read it
+  if (el.getAttribute("aria-hidden") === "true") return "";
+
+  // If the element itself is an icon, don't read it
+  if (
+    el.classList?.contains("material-symbols-outlined") ||
+    el.classList?.contains("icon") ||
+    el.tagName?.toLowerCase() === "svg"
+  ) {
+    return "";
+  }
+
   // 1. aria-label
   const ariaLabel = el.getAttribute("aria-label");
   if (ariaLabel?.trim()) return ariaLabel.trim();
@@ -44,15 +56,25 @@ function extractText(el) {
   const describedById = el.getAttribute("aria-describedby");
   if (describedById) {
     const descEl = document.getElementById(describedById);
-    if (descEl?.textContent?.trim()) return descEl.textContent.trim();
+    if (descEl) {
+      const descClone = descEl.cloneNode(true);
+      const icons = descClone.querySelectorAll(".material-symbols-outlined, [aria-hidden='true'], svg, .icon, i");
+      icons.forEach((icon) => icon.remove());
+      const descText = descClone.textContent?.trim() || "";
+      if (descText) return descText;
+    }
   }
 
   // 4. title attribute
   const title = el.getAttribute("title");
   if (title?.trim()) return title.trim();
 
-  // 5. Inner text (limit to 200 chars to avoid reading massive blocks)
-  const text = el.textContent?.trim() || "";
+  // 5. Inner text (limit to 200 chars, with icons removed)
+  const clone = el.cloneNode(true);
+  const icons = clone.querySelectorAll(".material-symbols-outlined, [aria-hidden='true'], svg, .icon, i");
+  icons.forEach((icon) => icon.remove());
+  
+  const text = clone.textContent?.trim() || "";
   return text.length > 200 ? text.substring(0, 200) + "..." : text;
 }
 

@@ -43,7 +43,6 @@ export default function App() {
               <Route path="/quyen-loi" element={<RightsPage />} />
               <Route path="/ket-noi" element={<ConnectionPage />} />
               <Route path="/ban-do" element={<SupportMapPage />} />
-              {/* <Route path="/tin-tuc" element={<NewsPage />} /> */}
 
               {/* ── Phase 5: Admin ── */}
               {/* <Route path="/admin/*" element={<AdminDashboard />} /> */}

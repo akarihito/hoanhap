@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useCallback, useState, useRef } from "react";
 
-const TTS_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/tts";
+// ─── Vietnamese voice selection logging (once per session) ──────
+let voicesLoggedThisSession = false;
 
 /* ═══════════════════════════════════════════════════════════════════
    AccessibilityContext
@@ -11,8 +12,17 @@ const TTS_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/t
    • fontScale    – Root font-size multiplier (0.8–2.0, step 0.1)
    • darkMode     – Tailwind "dark" class toggle
    • highContrast – Ultra-high-contrast mode (black bg, yellow/white text)
-   • screenReader – Browser TTS via Web Speech API
+   • screenReader – TTS via Web Speech API with Vietnamese voice
    • keyboardNav  – Enhanced focus indicators for keyboard-only users
+   
+   TTS Strategy:
+   Uses the browser's built-in Web Speech API (SpeechSynthesis).
+   Automatically selects the best available Vietnamese voice with priority:
+   1. Google tiếng Việt (highest quality)
+   2. Microsoft tiếng Việt (Windows)
+   3. Any vi-VN locale voice
+   4. Any vi-* locale voice
+   5. Browser default (last resort)
    
    Persistence: localStorage key "hoa-nhap-accessibility"
    ═══════════════════════════════════════════════════════════════════ */
@@ -102,26 +112,87 @@ function accessibilityReducer(state, action) {
 // ─── Context Creation ───────────────────────────────────────────
 const AccessibilityContext = createContext(null);
 
+// ─── Vietnamese Voice Picker ────────────────────────────────────
+// Picks the best available Vietnamese voice from the browser's voice list.
+// Priority: Google vi > Microsoft vi > any vi-VN > any vi-* > null
+function pickVietnameseVoice(voices) {
+  if (!voices || voices.length === 0) return null;
+
+  const normalize = (lang) => lang.toLowerCase().replace("_", "-");
+
+  // 1. Google Vietnamese (Chrome on desktop — highest quality)
+  let match = voices.find((v) => {
+    const lang = normalize(v.lang);
+    const name = v.name.toLowerCase();
+    return (lang === "vi-vn" || lang === "vi") && name.includes("google");
+  });
+  if (match) return match;
+
+  // 2. Microsoft Vietnamese (Edge / Windows — good quality)
+  match = voices.find((v) => {
+    const lang = normalize(v.lang);
+    const name = v.name.toLowerCase();
+    return (lang === "vi-vn" || lang === "vi") && (name.includes("microsoft") || name.includes("hoai") || name.includes("an"));
+  });
+  if (match) return match;
+
+  // 3. Any voice with lang exactly vi-VN
+  match = voices.find((v) => normalize(v.lang) === "vi-vn");
+  if (match) return match;
+
+  // 4. Any voice starting with vi- or exactly vi
+  match = voices.find((v) => {
+    const lang = normalize(v.lang);
+    return lang.startsWith("vi-") || lang === "vi";
+  });
+  if (match) return match;
+
+  return null;
+}
+
 // ─── Provider Component ─────────────────────────────────────────
 export function AccessibilityProvider({ children }) {
   const [state, dispatch] = useReducer(accessibilityReducer, null, loadPersistedState);
-  
-  // Audio refs to manage local Piper TTS streams
-  const currentAudioRef = useRef(null);
-  const currentObjectURLRef = useRef(null);
 
-  // Store browser voices in state to guarantee asynchronous voice availability
+  // Store browser voices (loaded asynchronously by the browser)
   const [browserVoices, setBrowserVoices] = useState([]);
+  const currentAudioRef = useRef(null);
 
+  // Load voices from browser SpeechSynthesis
   useEffect(() => {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      const loadVoices = () => {
-        setBrowserVoices(window.speechSynthesis.getVoices());
-      };
-      loadVoices();
-      if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = loadVoices;
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        setBrowserVoices(voices);
+
+        // Log available Vietnamese voices once
+        if (!voicesLoggedThisSession) {
+          const viVoices = voices.filter((v) => {
+            const lang = v.lang.toLowerCase().replace("_", "-");
+            return lang.startsWith("vi");
+          });
+          const selected = pickVietnameseVoice(voices);
+          console.log(
+            "[TTS] Giọng tiếng Việt khả dụng:",
+            viVoices.length > 0
+              ? viVoices.map((v) => `${v.name} (${v.lang})`).join(", ")
+              : "Không tìm thấy — sẽ dùng giọng mặc định"
+          );
+          if (selected) {
+            console.log(`[TTS] Đã chọn giọng: ${selected.name} (${selected.lang})`);
+          }
+          voicesLoggedThisSession = true;
+        }
       }
+    };
+
+    loadVoices();
+
+    // Chrome loads voices asynchronously
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
     }
   }, []);
 
@@ -167,18 +238,13 @@ export function AccessibilityProvider({ children }) {
 
   // ── Stop speaking ──
   const stopSpeaking = useCallback(() => {
-    // 1. Clear Piper TTS Audio ref
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
-    }
-    if (currentObjectURLRef.current) {
-      URL.revokeObjectURL(currentObjectURLRef.current);
-      currentObjectURLRef.current = null;
-    }
-    // 2. Clear native browser speech synthesis
     if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
+    }
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
     }
   }, []);
 
@@ -190,87 +256,55 @@ export function AccessibilityProvider({ children }) {
   }, [state.screenReader, stopSpeaking]);
 
   // ── TTS: speakText(text) ──────────────────────────────────────
-  // Fetches audio Blob from local Piper TTS backend.
-  // Falls back to native browser SpeechSynthesis if the API fails or is offline.
+  // Uses Web Speech API with optimized Vietnamese voice selection.
+  // Falls back to Google Translate TTS if no Vietnamese voice is installed.
   const speakText = useCallback(
-    async (text) => {
+    (text) => {
       if (!text || typeof window === "undefined") return;
 
-      // 1. Interrupt active speech and clear references
+      // Interrupt any active speech
       stopSpeaking();
 
       try {
-        // 2. Query self-hosted Piper TTS API
-        const response = await fetch(TTS_API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text }),
-        });
+        const voicesList = browserVoices.length > 0
+          ? browserVoices
+          : (window.speechSynthesis ? window.speechSynthesis.getVoices() : []);
 
-        if (!response.ok) {
-          throw new Error(`Mã phản hồi lỗi HTTP: ${response.status}`);
-        }
+        const selectedVoice = pickVietnameseVoice(voicesList);
 
-        const blobData = await response.blob();
+        if (selectedVoice && window.speechSynthesis) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "vi-VN";
+          utterance.voice = selectedVoice;
+          // Tuned for natural Vietnamese speech
+          utterance.rate = 0.95;
+          utterance.pitch = 1.05;
+          utterance.volume = 1.0;
 
-        // 3. Create object URL for audio stream
-        const audioUrl = URL.createObjectURL(blobData);
-        currentObjectURLRef.current = audioUrl;
-
-        // 4. Play new audio
-        const audio = new Audio(audioUrl);
-        currentAudioRef.current = audio;
-
-        audio.onended = () => {
-          if (currentObjectURLRef.current === audioUrl) {
-            URL.revokeObjectURL(audioUrl);
-            currentObjectURLRef.current = null;
-          }
-          if (currentAudioRef.current === audio) {
-            currentAudioRef.current = null;
-          }
-        };
-
-        await audio.play();
-      } catch (error) {
-        console.warn("[Lỗi Piper TTS]: Không thể kết nối tới server hoặc file âm thanh bị lỗi. Đang chuyển sang Web Speech API dự phòng.", error);
-
-        // ── Native Web Speech API Fallback ──
-        try {
-          if (window.speechSynthesis) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = "vi-VN";
-
-            // Find best available Vietnamese voice
-            const voicesList = browserVoices.length > 0 ? browserVoices : window.speechSynthesis.getVoices();
-            console.log("[TTS Voices]: Danh sách giọng nói khả dụng:", voicesList.map(v => `${v.name} (${v.lang})`));
-
-            let voice = voicesList.find(
-              (v) => (v.lang.toLowerCase() === "vi-vn" || v.lang.toLowerCase() === "vi_vn" || v.lang.toLowerCase().startsWith("vi") || v.lang.toLowerCase().includes("vi")) && v.name.toLowerCase().includes("google")
-            );
-            if (!voice) {
-              voice = voicesList.find(
-                (v) => v.lang.toLowerCase() === "vi-vn" || v.lang.toLowerCase() === "vi_vn" || v.lang.toLowerCase().startsWith("vi") || v.lang.toLowerCase().includes("vi")
-              );
+          window.speechSynthesis.speak(utterance);
+        } else {
+          // Fallback: Google Translate TTS via Local Vite Proxy
+          // Works globally without requiring installed OS voices, avoiding CORS/Referrer blocks
+          // The API has a limit of 200 characters per request
+          const safeText = text.length > 200 ? text.slice(0, 197) + "..." : text;
+          const url = `/api/tts?client=gtx&ie=UTF-8&tl=vi&q=${encodeURIComponent(
+            safeText
+          )}`;
+          const audio = new Audio();
+          audio.src = url;
+          currentAudioRef.current = audio;
+          audio.onended = () => {
+            if (currentAudioRef.current === audio) {
+              currentAudioRef.current = null;
             }
-
-            if (voice) {
-              console.log("[TTS Fallback]: Đã chọn giọng nói Tiếng Việt:", voice.name);
-              utterance.voice = voice;
-            } else {
-              console.warn("[TTS Fallback]: Không tìm thấy giọng nói tiếng Việt chuyên biệt. Trình duyệt sẽ phát giọng mặc định.");
-            }
-
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-
-            window.speechSynthesis.speak(utterance);
-          }
-        } catch (fallbackError) {
-          console.error("[Lỗi Web Speech Fallback]: Không thể phát giọng nói mặc định của trình duyệt", fallbackError);
+          };
+          audio.play().catch((err) => {
+            if (err.name === "AbortError") return; // Ignore play() interrupted by pause()
+            console.error("[TTS Fallback] Lỗi phát âm thanh Google TTS:", err);
+          });
         }
+      } catch (err) {
+        console.error("[TTS] Lỗi phát giọng nói:", err);
       }
     },
     [stopSpeaking, browserVoices]

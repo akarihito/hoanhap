@@ -6,12 +6,13 @@ import Icon from "../components/ui/Icon";
 import Button from "../components/ui/Button";
 
 /**
- * HomePage — Main landing page converted from code.html
+ * HomePage — Main landing page
  *
  * Sections:
- *  1. Hero with search bar
- *  2. Service grid (4 cards, bento style)
- *  3. CTA Banner (legal support)
+ *  1. Hero with gradient mesh, animated orbs, and search bar
+ *  2. Service grid (3 cards, bento style)
+ *  3. Stats / trust indicators
+ *  4. CTA Banner (legal support)
  *
  * All content is in natural Vietnamese.
  * Uses semantic <section> elements with aria-labelledby.
@@ -23,50 +24,40 @@ const SERVICES = [
     icon: "gavel",
     title: "Tra cứu quyền lợi",
     description:
-      "Thông tin chi tiết về thủ tục hành chính, cấp giấy xác nhận và chính sách ưu đãi.",
+      "Thông tin chi tiết về thủ tục hành chính, cấp giấy xác nhận và chính sách ưu đãi dành cho người khuyết tật.",
     ariaLabel:
       "Tra cứu quyền lợi, thủ tục hành chính và chính sách",
-    iconBg: "bg-primary-fixed",
+    iconBg: "bg-blue-50 dark:bg-blue-950/50",
     iconColor: "text-primary",
-    iconBorder: "border-primary-container",
+    iconBorder: "border-blue-200 dark:border-blue-800",
   },
   {
     to: "/ket-noi",
     icon: "diversity_3",
     title: "Kết nối yêu thương",
     description:
-      "Kết nối bạn với các cộng đồng và cá nhân sẵn lòng hỗ trợ, chia sẻ cùng người khuyết tật.",
+      "Kết nối bạn với các cộng đồng và cá nhân sẵn lòng hỗ trợ, chia sẻ cùng người khuyết tật trên toàn quốc.",
     ariaLabel:
       "Kết nối yêu thương và hỗ trợ từ cộng đồng",
-    iconBg: "bg-error-container",
-    iconColor: "text-on-error-container",
-    iconBorder: "border-error",
+    iconBg: "bg-rose-50 dark:bg-rose-950/50",
+    iconColor: "text-rose-600 dark:text-rose-400",
+    iconBorder: "border-rose-200 dark:border-rose-800",
   },
   {
     to: "/ban-do",
     icon: "map",
     title: "Bản đồ hỗ trợ",
     description:
-      "Tìm kiếm cơ sở y tế, trung tâm phục hồi chức năng và địa điểm tiếp cận gần bạn.",
+      "Tìm kiếm cơ sở y tế, trung tâm phục hồi chức năng và địa điểm tiếp cận dành cho NKT gần bạn nhất.",
     ariaLabel:
       "Bản đồ hỗ trợ tìm kiếm cơ sở y tế, trung tâm gần nhất",
-    iconBg: "bg-secondary-fixed",
-    iconColor: "text-on-secondary-fixed",
-    iconBorder: "border-secondary",
-  },
-  {
-    to: "/tin-tuc",
-    icon: "article",
-    title: "Tin tức & Bài viết",
-    description:
-      "Cập nhật các thông báo mới nhất từ chính phủ và các câu chuyện truyền cảm hứng.",
-    ariaLabel:
-      "Tin tức và Bài viết, cập nhật thông tin mới nhất",
-    iconBg: "bg-surface-variant",
-    iconColor: "text-on-surface-variant",
-    iconBorder: "border-outline",
+    iconBg: "bg-emerald-50 dark:bg-emerald-950/50",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    iconBorder: "border-emerald-200 dark:border-emerald-800",
   },
 ];
+
+
 
 export default function HomePage() {
   const { state, speakText } = useAccessibility();
@@ -84,47 +75,66 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ═══ Hero Section with Search ═══ */}
+      {/* ═══ Hero Section with Gradient Mesh ═══ */}
       <section
         aria-labelledby="hero-heading"
-        className="w-full bg-primary-fixed dark:bg-on-primary-fixed
-                   py-16 md:py-24
+        className="hero-gradient w-full
+                   py-20 md:py-32
                    px-margin-mobile md:px-margin-desktop
                    relative overflow-hidden
                    flex flex-col items-center justify-center
-                   border-b-2 border-primary
                    theme-transition"
       >
         <div className="max-w-[1000px] w-full mx-auto relative z-10 flex flex-col items-center text-center space-y-8">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                          bg-primary/10 dark:bg-primary/20
+                          border border-primary/20 dark:border-primary/30
+                          text-sm font-semibold text-primary dark:text-inverse-primary
+                          animate-fade-up">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-dot" aria-hidden="true" />
+            Cổng thông tin hỗ trợ NKT hàng đầu Việt Nam
+          </div>
+
           <h1
             id="hero-heading"
-            className="text-headline-xl md:text-[3.5rem] md:leading-[4.25rem]
-                       text-on-primary-fixed dark:text-primary-fixed
-                       font-extrabold leading-tight max-w-3xl"
+            className="text-headline-xl md:text-[3.75rem] md:leading-[4.5rem]
+                       text-gradient-primary
+                       font-extrabold leading-tight max-w-4xl
+                       animate-fade-up stagger-1"
           >
-            Hòa nhập và Phát triển cùng cộng đồng
+            Hòa nhập và Phát triển
+            <br className="hidden sm:block" />
+            cùng cộng đồng
           </h1>
 
-          <p className="text-body-lg text-on-surface-variant dark:text-surface-variant max-w-2xl">
+          <p className="text-body-lg text-on-surface-variant dark:text-surface-dim
+                        max-w-2xl animate-fade-up stagger-2">
             Cổng thông tin hỗ trợ tiếp cận dịch vụ, chính sách và cơ hội việc
             làm dành cho người khuyết tật tại Việt Nam.
           </p>
 
           {/* Search Bar */}
-          <div className="w-full mt-8">
+          <div className="w-full mt-4 animate-fade-up stagger-3">
             <SearchBar onSearch={handleSearch} />
           </div>
         </div>
 
-        {/* Decorative background elements */}
+        {/* Decorative animated orbs */}
         <div
-          className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full
-                     -translate-y-1/2 translate-x-1/3 blur-3xl"
+          className="absolute top-10 right-[10%] w-72 h-72 bg-primary/[0.07] rounded-full
+                     blur-3xl animate-float"
           aria-hidden="true"
         />
         <div
-          className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full
-                     translate-y-1/2 -translate-x-1/3 blur-3xl"
+          className="absolute bottom-10 left-[5%] w-56 h-56 bg-blue-400/[0.06] rounded-full
+                     blur-3xl animate-float-reverse"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                     w-[600px] h-[600px] bg-primary/[0.03] rounded-full
+                     blur-3xl animate-float-slow"
           aria-hidden="true"
         />
       </section>
@@ -135,20 +145,25 @@ export default function HomePage() {
         className="py-16 md:py-24 px-margin-mobile md:px-margin-desktop
                    max-w-[1440px] mx-auto w-full"
       >
-        <h2
-          id="services-heading"
-          className="text-headline-lg-mobile md:text-headline-lg
-                     text-on-surface dark:text-inverse-on-surface
-                     mb-12 text-center md:text-left
-                     border-b-4 border-primary dark:border-inverse-primary
-                     inline-block pb-2"
-        >
-          Dịch vụ trọng tâm
-        </h2>
+        <div className="text-center md:text-left mb-14">
+          <h2
+            id="services-heading"
+            className="text-headline-lg-mobile md:text-headline-lg
+                       text-gradient-primary
+                       inline-block pb-1 font-extrabold"
+          >
+            Dịch vụ trọng tâm
+          </h2>
+          <p className="mt-3 text-body-md text-on-surface-variant dark:text-surface-dim max-w-xl mx-auto md:mx-0">
+            Những dịch vụ thiết yếu giúp người khuyết tật tiếp cận quyền lợi, kết nối cộng đồng và tìm kiếm hỗ trợ.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
-          {SERVICES.map((service) => (
-            <ServiceCard key={service.to} {...service} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {SERVICES.map((service, i) => (
+            <div key={service.to} className={`animate-fade-up stagger-${i + 1}`}>
+              <ServiceCard {...service} />
+            </div>
           ))}
         </div>
       </section>
@@ -160,14 +175,18 @@ export default function HomePage() {
       >
         <div
           className="cta-banner max-w-[1440px] mx-auto
-                     bg-primary dark:bg-primary-container
-                     text-on-primary dark:text-on-primary-container
-                     rounded-2xl p-8 md:p-12
+                     text-on-primary
+                     rounded-2xl p-8 md:p-14
                      flex flex-col md:flex-row items-center justify-between gap-8
-                     border-4 border-primary-container dark:border-primary
-                     shadow-xl theme-transition"
+                     shadow-2xl theme-transition relative z-10"
         >
-          <div className="max-w-2xl text-center md:text-left">
+          <div className="max-w-2xl text-center md:text-left relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full
+                            bg-white/10 text-sm font-semibold mb-4
+                            border border-white/10">
+              <Icon name="headset_mic" size="text-base" />
+              Hỗ trợ miễn phí
+            </div>
             <h2
               id="cta-heading"
               className="text-headline-lg-mobile md:text-headline-lg font-bold mb-4"
@@ -181,17 +200,19 @@ export default function HomePage() {
           </div>
 
           <button
-            className="bg-surface text-primary font-bold text-label-lg
+            className="shimmer-btn relative z-10
+                       bg-white text-primary font-bold text-label-lg
                        px-8 py-4 rounded-xl
-                       hover:bg-surface-variant transition-colors
+                       hover:bg-primary-fixed transition-all
                        min-h-[56px]
-                       focus-visible:ring-4 focus-visible:ring-surface
-                       border-2 border-surface whitespace-nowrap
-                       shadow-lg
-                       flex items-center gap-2
-                       active:scale-95"
+                       focus-visible:ring-4 focus-visible:ring-white/50
+                       whitespace-nowrap
+                       shadow-lg hover:shadow-xl
+                       flex items-center gap-3
+                       active:scale-95
+                       hover:-translate-y-0.5"
           >
-            <Icon name="headset_mic" size="text-xl" />
+            <Icon name="call" size="text-xl" />
             Liên hệ ngay
           </button>
         </div>

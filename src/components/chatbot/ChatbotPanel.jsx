@@ -76,7 +76,7 @@ const FAQ_DATABASE = [
     answer:
       "Chính sách giáo dục cho NKT:\n\n• Miễn, giảm học phí ở tất cả các cấp học.\n• Ưu tiên tuyển sinh đại học, cao đẳng.\n• Trường, lớp giáo dục chuyên biệt.\n• Hỗ trợ phương tiện, đồ dùng học tập.\n• Học bổng dành riêng cho sinh viên khuyết tật.\n\nLiên hệ Sở Giáo dục & Đào tạo tại địa phương.",
     links: [
-      { label: "Tin tức & Bài viết", to: "/tin-tuc" },
+      { label: "Tra cứu quyền lợi", to: "/quyen-loi" },
     ],
   },
 ];

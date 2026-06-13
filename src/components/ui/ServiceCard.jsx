@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Icon from "./Icon";
 
 /**
- * ServiceCard — Bento grid card for homepage services
+ * ServiceCard — Premium bento grid card for homepage services
  *
  * Displays a service with icon, title, description, and "Xem chi tiết" link.
  *
@@ -11,6 +11,7 @@ import Icon from "./Icon";
  *  - Group hover transitions for visual feedback
  *  - Focus-visible ring on the card
  *  - Icon container uses role="presentation"
+ *  - Animated gradient top border on hover
  *
  * @param {string} to           - Route path
  * @param {string} icon         - Material Symbol name
@@ -35,49 +36,58 @@ export default function ServiceCard({
     <Link
       to={to}
       aria-label={ariaLabel || `${title}: ${description}`}
-      className="service-card group bg-surface dark:bg-inverse-surface
-                 border-2 border-outline-variant
-                 hover:border-primary dark:hover:border-inverse-primary
-                 rounded-xl p-8 flex flex-col items-start gap-6
-                 transition-all duration-200
-                 hover:shadow-lg
+      className="service-card group
+                 bg-surface-container-lowest dark:bg-inverse-surface
+                 border border-outline-variant/50
+                 dark:border-outline/30
+                 hover:border-primary/30 dark:hover:border-inverse-primary/30
+                 rounded-2xl p-8 flex flex-col items-start gap-6
+                 transition-all duration-300
                  focus-visible:ring-4 focus-visible:ring-primary
-                 theme-transition"
+                 theme-transition
+                 hover:-translate-y-1"
     >
       {/* Icon container */}
       <div
-        className={`w-16 h-16 ${iconBg} ${iconColor} rounded-lg
+        className={`w-14 h-14 ${iconBg} ${iconColor} rounded-xl
                     flex items-center justify-center
                     border ${iconBorder}
-                    group-hover:scale-110 transition-transform duration-200`}
+                    group-hover:scale-110 group-hover:rotate-3
+                    transition-all duration-300`}
         role="presentation"
       >
-        <Icon name={icon} size="text-4xl" />
+        <Icon name={icon} size="text-3xl" />
       </div>
 
       {/* Text content */}
-      <div>
+      <div className="space-y-3">
         <h3
           className="text-headline-md text-on-surface dark:text-inverse-on-surface
-                     mb-3 group-hover:text-primary dark:group-hover:text-inverse-primary
-                     transition-colors"
+                     group-hover:text-primary dark:group-hover:text-inverse-primary
+                     transition-colors duration-300 font-bold"
         >
           {title}
         </h3>
-        <p className="text-body-md text-on-surface-variant dark:text-surface-dim">
+        <p className="text-body-md text-on-surface-variant dark:text-surface-dim leading-relaxed">
           {description}
         </p>
       </div>
 
       {/* "View details" link indicator */}
       <div
-        className="mt-auto pt-4 flex items-center gap-1
+        className="mt-auto pt-4 flex items-center gap-2
                    text-primary dark:text-inverse-primary
                    font-semibold text-label-lg
-                   group-hover:gap-2 transition-all duration-200"
+                   group-hover:gap-3 transition-all duration-300"
       >
-        Xem chi tiết
-        <Icon name="arrow_forward" size="text-xl" />
+        <span>Xem chi tiết</span>
+        <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20
+                        flex items-center justify-center
+                        group-hover:bg-primary group-hover:text-on-primary
+                        dark:group-hover:bg-inverse-primary dark:group-hover:text-primary
+                        transition-all duration-300">
+          <Icon name="arrow_forward" size="text-lg" />
+        </div>
       </div>
     </Link>
   );

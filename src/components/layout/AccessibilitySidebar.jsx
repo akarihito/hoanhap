@@ -53,18 +53,19 @@ export default function AccessibilitySidebar() {
 
   // Active state styling for toggle buttons
   const activeClasses =
-    "bg-primary-container text-primary dark:bg-on-primary-container dark:text-primary-fixed";
+    "bg-primary text-on-primary shadow-md";
   const inactiveClasses =
-    "text-on-tertiary-fixed-variant dark:text-tertiary-fixed hover:bg-primary-container dark:hover:bg-on-tertiary-container hover:text-primary";
+    "text-on-surface-variant/70 dark:text-gray-500 hover:bg-surface-variant dark:hover:bg-white/5 hover:text-primary dark:hover:text-inverse-primary";
 
   return (
     <>
       <aside
         aria-label="Thanh công cụ trợ năng"
         className="accessibility-sidebar fixed left-0 top-0 h-full w-sidebar-width z-50
-                   bg-surface-container-highest dark:bg-tertiary
-                   border-r-2 border-primary dark:border-outline
-                   shadow-lg flex flex-col items-center py-6 space-y-3
+                   bg-surface-container-lowest dark:bg-[#111318]
+                   border-r border-outline-variant/30 dark:border-white/5
+                   shadow-xl shadow-black/[0.03]
+                   flex flex-col items-center py-6 space-y-2
                    theme-transition"
       >
         {/* Tool 1: Read Content (TTS) */}
@@ -72,13 +73,13 @@ export default function AccessibilitySidebar() {
           onClick={toggleScreenReader}
           aria-label="Đọc nội dung"
           aria-pressed={state.screenReader}
-          className={`sidebar-tool-btn group ${
+          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${
             state.screenReader ? activeClasses : inactiveClasses
           }`}
         >
           <Icon
             name="volume_up"
-            size="text-3xl"
+            size="text-2xl"
             className="group-hover:scale-110 transition-transform"
           />
           <span className="icon-label">
@@ -92,12 +93,12 @@ export default function AccessibilitySidebar() {
         <button
           onClick={increaseFontScale}
           aria-label={`Tăng cỡ chữ. Cỡ chữ hiện tại: ${Math.round(state.fontScale * 100)}%`}
-          className={`sidebar-tool-btn group ${inactiveClasses}`}
+          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${inactiveClasses}`}
           disabled={state.fontScale >= 2.0}
         >
           <Icon
             name="text_increase"
-            size="text-3xl"
+            size="text-2xl"
             className="group-hover:scale-110 transition-transform"
           />
           <span className="icon-label">
@@ -111,12 +112,12 @@ export default function AccessibilitySidebar() {
         <button
           onClick={decreaseFontScale}
           aria-label={`Giảm cỡ chữ. Cỡ chữ hiện tại: ${Math.round(state.fontScale * 100)}%`}
-          className={`sidebar-tool-btn group ${inactiveClasses}`}
+          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${inactiveClasses}`}
           disabled={state.fontScale <= 0.8}
         >
           <Icon
             name="text_decrease"
-            size="text-3xl"
+            size="text-2xl"
             className="group-hover:scale-110 transition-transform"
           />
           <span className="icon-label">
@@ -131,13 +132,13 @@ export default function AccessibilitySidebar() {
           onClick={toggleHighContrast}
           aria-label="Tương phản cao"
           aria-pressed={state.highContrast}
-          className={`sidebar-tool-btn group ${
+          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${
             state.highContrast ? activeClasses : inactiveClasses
           }`}
         >
           <Icon
             name="contrast"
-            size="text-3xl"
+            size="text-2xl"
             className="group-hover:scale-110 transition-transform"
           />
           <span className="icon-label">
@@ -152,13 +153,13 @@ export default function AccessibilitySidebar() {
           onClick={toggleDarkMode}
           aria-label="Chế độ tối"
           aria-pressed={state.darkMode}
-          className={`sidebar-tool-btn group ${
+          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${
             state.darkMode ? activeClasses : inactiveClasses
           }`}
         >
           <Icon
             name="dark_mode"
-            size="text-3xl"
+            size="text-2xl"
             className="group-hover:scale-110 transition-transform"
           />
           <span className="icon-label">
@@ -173,13 +174,13 @@ export default function AccessibilitySidebar() {
           onClick={toggleKeyboardNav}
           aria-label="Điều hướng bằng bàn phím"
           aria-pressed={state.keyboardNav}
-          className={`sidebar-tool-btn group ${
+          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${
             state.keyboardNav ? activeClasses : inactiveClasses
           }`}
         >
           <Icon
             name="keyboard"
-            size="text-3xl"
+            size="text-2xl"
             className="group-hover:scale-110 transition-transform"
           />
           <span className="icon-label">
@@ -196,13 +197,16 @@ export default function AccessibilitySidebar() {
         <button
           onClick={handleSOS}
           aria-label="SOS Khẩn cấp — Liên hệ đường dây nóng"
-          className="sidebar-tool-btn group bg-secondary text-on-secondary
-                     hover:bg-secondary-container hover:text-on-secondary-container
-                     shadow-md"
+          className="sidebar-tool-btn group
+                     bg-gradient-to-b from-red-600 to-red-700
+                     text-white
+                     hover:from-red-500 hover:to-red-600
+                     shadow-lg shadow-red-600/20
+                     rounded-xl"
         >
           <Icon
             name="sos"
-            size="text-3xl"
+            size="text-2xl"
             className="font-bold group-hover:scale-110 transition-transform"
           />
           <span className="icon-label font-bold">SOS</span>

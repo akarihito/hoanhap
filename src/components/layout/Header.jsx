@@ -8,7 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
  *
  * Features:
  *  - Logo + brand text linking to /
- *  - Desktop navigation: Quyền lợi, Trợ cấp, Bản đồ hỗ trợ, Tin tức
+ *  - Desktop navigation: Quyền lợi, Kết nối, Bản đồ hỗ trợ
  *  - Action buttons: Language, Notifications, Đăng nhập
  *  - Mobile hamburger menu with slide-down panel
  *  - Semantic <header> + <nav> with aria-labels
@@ -19,7 +19,6 @@ const NAV_ITEMS = [
   { to: "/quyen-loi", label: "Quyền lợi" },
   { to: "/ket-noi", label: "Kết nối" },
   { to: "/ban-do", label: "Bản đồ hỗ trợ" },
-  { to: "/tin-tuc", label: "Tin tức" },
 ];
 
 export default function Header() {
@@ -41,10 +40,10 @@ export default function Header() {
 
   return (
     <header
-      className="bg-surface dark:bg-tertiary border-b-2 border-outline-variant
-                 dark:border-outline w-full sticky top-0 z-40 theme-transition"
+      className="glass-header border-b border-outline-variant/50
+                 dark:border-outline/50 w-full sticky top-0 z-40 theme-transition"
     >
-      <div className="flex justify-between items-center px-4 md:px-margin-desktop py-4 w-full max-w-[1440px] mx-auto">
+      <div className="flex justify-between items-center px-4 md:px-margin-desktop py-3 w-full max-w-[1440px] mx-auto">
         {/* ── Logo & Brand ── */}
         <div className="flex items-center gap-4">
           <Link
