@@ -56,11 +56,6 @@ export default function FeedbackPage() {
     });
   };
 
-  const handleReadContactInfo = useCallback(() => {
-    const contactText = `Cổng thông tin hỗ trợ người khuyết tật Hoà Nhập. Địa chỉ: Tầng 5, Tòa nhà Dịch vụ Công cộng, Cầu Giấy, Hà Nội. Đường dây nóng y tế: 1 9 0 0 6 1 7 9. Đường dây tư vấn pháp lý: 1 9 0 0 6 1 8 0. Đội xe hỗ trợ di chuyển: 0 9 1 2 3 4 5 6 7 8.`;
-    speakText(contactText);
-  }, [speakText]);
-
   return (
     <div className="flex-1 bg-surface-container-lowest dark:bg-tertiary/20 theme-transition pb-24">
       {/* ─── Hero Section ─── */}
@@ -86,266 +81,170 @@ export default function FeedbackPage() {
 
       {/* ─── Main Content Layout ─── */}
       <section className="max-w-[1440px] mx-auto px-gutter py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* Left Column: Contact info cards */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="bg-surface-container dark:bg-tertiary border-2 border-outline-variant dark:border-outline rounded-3xl p-6 md:p-8 shadow-sm theme-transition">
-              <h2 className="font-headline-lg text-headline-md text-primary dark:text-inverse-primary mb-6 flex items-center gap-3">
-                <Icon name="support_agent" size="text-3xl" className="text-primary dark:text-inverse-primary" />
-                Các kênh hỗ trợ trực tiếp
-              </h2>
-              
-              <p className="text-body-medium text-on-surface-variant dark:text-tertiary-fixed-dim mb-8 leading-relaxed">
-                Bên cạnh việc gửi góp ý trực tuyến, bạn cũng có thể liên hệ trực tiếp với các bộ phận hỗ trợ chuyên biệt của chúng tôi:
-              </p>
-
-              {/* Hotlines */}
-              <div className="space-y-6" role="list">
-                <div className="flex items-start gap-4" role="listitem">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 flex items-center justify-center shrink-0">
-                    <Icon name="medical_services" className="text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-on-surface dark:text-inverse-on-surface">Đường dây nóng Y tế</h3>
-                    <a
-                      href="tel:19006179"
-                      className="text-headline-md font-extrabold text-blue-600 dark:text-blue-400 hover:underline block mt-0.5 accessibility-focus"
-                    >
-                      1900 6179
-                    </a>
-                  </div>
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-surface-container dark:bg-tertiary border-2 border-outline-variant dark:border-outline rounded-3xl p-6 md:p-10 shadow-sm theme-transition">
+            {success ? (
+              <div className="text-center py-16 space-y-6">
+                <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-inner border border-emerald-200 dark:border-emerald-900">
+                  <Icon name="check" size="text-4xl" />
                 </div>
-
-                <div className="flex items-start gap-4" role="listitem">
-                  <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 flex items-center justify-center shrink-0">
-                    <Icon name="gavel" className="text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-on-surface dark:text-inverse-on-surface">Tư vấn Pháp lý</h3>
-                    <a
-                      href="tel:19006180"
-                      className="text-headline-md font-extrabold text-amber-600 dark:text-amber-400 hover:underline block mt-0.5 accessibility-focus"
-                    >
-                      1900 6180
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4" role="listitem">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 flex items-center justify-center shrink-0">
-                    <Icon name="accessible" className="text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-sm text-on-surface dark:text-inverse-on-surface">Đội xe hỗ trợ di chuyển</h3>
-                    <a
-                      href="tel:0912345678"
-                      className="text-headline-md font-extrabold text-emerald-600 dark:text-emerald-400 hover:underline block mt-0.5 accessibility-focus"
-                    >
-                      0912 345 678
-                    </a>
-                  </div>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-inverse-on-surface">Đã gửi thành công!</h2>
+                <p className="text-body-lg text-on-surface-variant dark:text-tertiary-fixed-dim max-w-md mx-auto leading-relaxed">
+                  Cảm ơn phản hồi và góp ý của bạn. Ban biên tập Cổng thông tin Hoà Nhập sẽ ghi nhận và thực hiện các cải tiến phù hợp.
+                </p>
+                <div className="pt-4">
+                  <Button variant="primary" onClick={() => setSuccess(false)} className="px-8 h-12">
+                    Gửi góp ý khác
+                  </Button>
                 </div>
               </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <h2 className="font-headline-lg text-headline-md text-on-surface dark:text-inverse-on-surface">
+                  Biểu mẫu Góp ý & Phản hồi
+                </h2>
+                <p className="text-sm text-on-surface-variant dark:text-tertiary-fixed-dim leading-relaxed">
+                  Ý kiến đóng góp của bạn rất có giá trị đối với chúng tôi. Các trường có dấu (<span className="text-error">*</span>) là bắt buộc.
+                </p>
 
-              <hr className="border-outline-variant/50 my-8" />
-
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 text-sm text-on-surface-variant dark:text-tertiary-fixed-dim">
-                  <Icon name="location_on" className="text-primary shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Địa chỉ:</strong> Tầng 5, Tòa nhà Dịch vụ Công cộng, Cầu Giấy, Hà Nội
-                  </span>
-                </div>
-                <div className="flex items-start gap-3 text-sm text-on-surface-variant dark:text-tertiary-fixed-dim">
-                  <Icon name="mail" className="text-primary shrink-0 mt-0.5" />
-                  <span>
-                    <strong>Email tiếp nhận:</strong> lienhe@hoanhap.org
-                  </span>
-                </div>
-              </div>
-
-              {/* Speak contact info button */}
-              <div className="mt-8">
-                <Button
-                  variant="secondary"
-                  onClick={handleReadContactInfo}
-                  icon="volume_up"
-                  className="w-full font-bold h-12 border-2"
-                >
-                  Đọc thông tin liên lạc
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Accessible Form */}
-          <div className="lg:col-span-7">
-            <div className="bg-surface-container dark:bg-tertiary border-2 border-outline-variant dark:border-outline rounded-3xl p-6 md:p-8 shadow-sm theme-transition">
-              {success ? (
-                <div className="text-center py-16 space-y-6">
-                  <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-inner border border-emerald-200 dark:border-emerald-900">
-                    <Icon name="check" size="text-4xl" />
-                  </div>
-                  <h2 className="font-headline-lg text-headline-lg text-on-surface dark:text-inverse-on-surface">Đã gửi thành công!</h2>
-                  <p className="text-body-lg text-on-surface-variant dark:text-tertiary-fixed-dim max-w-md mx-auto leading-relaxed">
-                    Cảm ơn phản hồi và góp ý của bạn. Ban biên tập Cổng thông tin Hoà Nhập sẽ ghi nhận và thực hiện các cải tiến phù hợp.
-                  </p>
-                  <div className="pt-4">
-                    <Button variant="primary" onClick={() => setSuccess(false)} className="px-8 h-12">
-                      Gửi góp ý khác
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <h2 className="font-headline-lg text-headline-md text-on-surface dark:text-inverse-on-surface">
-                    Biểu mẫu Góp ý & Phản hồi
-                  </h2>
-                  <p className="text-sm text-on-surface-variant dark:text-tertiary-fixed-dim leading-relaxed">
-                    Ý kiến đóng góp của bạn rất có giá trị đối với chúng tôi. Các trường có dấu (<span className="text-error">*</span>) là bắt buộc.
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Full Name */}
-                    <div className="flex flex-col space-y-2">
-                      <label htmlFor="feedback-form-name" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
-                        Họ và tên <span className="text-error">*</span>
-                      </label>
-                      <input
-                        id="feedback-form-name"
-                        type="text"
-                        value={form.name}
-                        onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                        className={`w-full h-12 px-4 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
-                          ${errors.name ? "border-error" : "border-outline-variant dark:border-outline"}`}
-                        placeholder="Nguyễn Văn A"
-                        aria-describedby={errors.name ? "name-error" : undefined}
-                      />
-                      {errors.name && (
-                        <p id="name-error" className="text-error text-xs font-bold flex items-center gap-1">
-                          <Icon name="error" size="text-xs" />
-                          {errors.name}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Email or Phone */}
-                    <div className="flex flex-col space-y-2">
-                      <label htmlFor="feedback-form-info" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
-                        Email hoặc Số điện thoại <span className="text-error">*</span>
-                      </label>
-                      <input
-                        id="feedback-form-info"
-                        type="text"
-                        value={form.contactInfo}
-                        onChange={(e) => setForm(f => ({ ...f, contactInfo: e.target.value }))}
-                        className={`w-full h-12 px-4 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
-                          ${errors.contactInfo ? "border-error" : "border-outline-variant dark:border-outline"}`}
-                        placeholder="0912xxxxxx hoặc email@example.com"
-                        aria-describedby={errors.contactInfo ? "info-error" : undefined}
-                      />
-                      {errors.contactInfo && (
-                        <p id="info-error" className="text-error text-xs font-bold flex items-center gap-1">
-                          <Icon name="error" size="text-xs" />
-                          {errors.contactInfo}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Feedback Type */}
-                    <div className="flex flex-col space-y-2">
-                      <label htmlFor="feedback-form-type" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
-                        Chủ đề góp ý
-                      </label>
-                      <select
-                        id="feedback-form-type"
-                        value={form.feedbackType}
-                        onChange={(e) => setForm(f => ({ ...f, feedbackType: e.target.value }))}
-                        className="w-full h-12 px-4 rounded-xl border-2 border-outline-variant dark:border-outline bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all cursor-pointer"
-                      >
-                        <option value="Góp ý website">Góp ý cải tiến website</option>
-                        <option value="Báo cáo lỗi">Báo cáo lỗi kỹ thuật</option>
-                        <option value="Đóng góp nội dung">Đóng góp nội dung / tài liệu</option>
-                        <option value="Ý kiến dịch vụ">Phản ánh chất lượng dịch vụ hỗ trợ</option>
-                        <option value="Khác">Ý kiến đóng góp khác</option>
-                      </select>
-                    </div>
-
-                    {/* Subject */}
-                    <div className="flex flex-col space-y-2">
-                      <label htmlFor="feedback-form-subject" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
-                        Tiêu đề <span className="text-error">*</span>
-                      </label>
-                      <input
-                        id="feedback-form-subject"
-                        type="text"
-                        value={form.subject}
-                        onChange={(e) => setForm(f => ({ ...f, subject: e.target.value }))}
-                        className={`w-full h-12 px-4 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
-                          ${errors.subject ? "border-error" : "border-outline-variant dark:border-outline"}`}
-                        placeholder="Ví dụ: Góp ý cải tiến giao diện đọc nói"
-                        aria-describedby={errors.subject ? "subject-error" : undefined}
-                      />
-                      {errors.subject && (
-                        <p id="subject-error" className="text-error text-xs font-bold flex items-center gap-1">
-                          <Icon name="error" size="text-xs" />
-                          {errors.subject}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Accessibility barrier checkbox */}
-                  <div className="flex items-start gap-3 p-4 bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-xl">
-                    <input
-                      id="feedback-form-barrier"
-                      type="checkbox"
-                      checked={form.isBarrierReport}
-                      onChange={(e) => setForm(f => ({ ...f, isBarrierReport: e.target.checked }))}
-                      className="w-5 h-5 accent-primary border-2 border-primary/30 rounded focus:ring-primary cursor-pointer mt-0.5"
-                    />
-                    <label htmlFor="feedback-form-barrier" className="text-xs font-bold text-on-surface-variant dark:text-tertiary-fixed-dim cursor-pointer leading-relaxed">
-                      Tôi muốn báo cáo một rào cản tiếp cận (lỗi hiển thị, đọc nội dung hoặc điều hướng bàn phím) mà tôi gặp phải trên website này.
-                    </label>
-                  </div>
-
-                  {/* Message details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Full Name */}
                   <div className="flex flex-col space-y-2">
-                    <label htmlFor="feedback-form-message" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
-                      Nội dung chi tiết <span className="text-error">*</span>
+                    <label htmlFor="feedback-form-name" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
+                      Họ và tên <span className="text-error">*</span>
                     </label>
-                    <textarea
-                      id="feedback-form-message"
-                      rows="5"
-                      value={form.message}
-                      onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
-                      className={`w-full px-4 py-3 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
-                        ${errors.message ? "border-error" : "border-outline-variant dark:border-outline"}`}
-                      placeholder="Nhập nội dung chi tiết cần góp ý hoặc phản hồi..."
-                      aria-describedby={errors.message ? "msg-error" : undefined}
+                    <input
+                      id="feedback-form-name"
+                      type="text"
+                      value={form.name}
+                      onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+                      className={`w-full h-12 px-4 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
+                        ${errors.name ? "border-error" : "border-outline-variant dark:border-outline"}`}
+                      placeholder="Nguyễn Văn A"
+                      aria-describedby={errors.name ? "name-error" : undefined}
                     />
-                    {errors.message && (
-                      <p id="msg-error" className="text-error text-xs font-bold flex items-center gap-1">
+                    {errors.name && (
+                      <p id="name-error" className="text-error text-xs font-bold flex items-center gap-1">
                         <Icon name="error" size="text-xs" />
-                        {errors.message}
+                        {errors.name}
                       </p>
                     )}
                   </div>
 
-                  {/* Submit Button */}
-                  <div className="pt-2">
-                    <Button type="submit" variant="primary" icon="send" className="w-full h-14 font-bold rounded-xl shadow-md">
-                      Gửi ý kiến góp ý
-                    </Button>
+                  {/* Email or Phone */}
+                  <div className="flex flex-col space-y-2">
+                    <label htmlFor="feedback-form-info" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
+                      Email hoặc Số điện thoại <span className="text-error">*</span>
+                    </label>
+                    <input
+                      id="feedback-form-info"
+                      type="text"
+                      value={form.contactInfo}
+                      onChange={(e) => setForm(f => ({ ...f, contactInfo: e.target.value }))}
+                      className={`w-full h-12 px-4 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
+                        ${errors.contactInfo ? "border-error" : "border-outline-variant dark:border-outline"}`}
+                      placeholder="0912xxxxxx hoặc email@example.com"
+                      aria-describedby={errors.contactInfo ? "info-error" : undefined}
+                    />
+                    {errors.contactInfo && (
+                      <p id="info-error" className="text-error text-xs font-bold flex items-center gap-1">
+                        <Icon name="error" size="text-xs" />
+                        {errors.contactInfo}
+                      </p>
+                    )}
                   </div>
-                </form>
-              )}
-            </div>
-          </div>
+                </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Feedback Type */}
+                  <div className="flex flex-col space-y-2">
+                    <label htmlFor="feedback-form-type" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
+                      Chủ đề góp ý
+                    </label>
+                    <select
+                      id="feedback-form-type"
+                      value={form.feedbackType}
+                      onChange={(e) => setForm(f => ({ ...f, feedbackType: e.target.value }))}
+                      className="w-full h-12 px-4 rounded-xl border-2 border-outline-variant dark:border-outline bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all cursor-pointer"
+                    >
+                      <option value="Góp ý website">Góp ý cải tiến website</option>
+                      <option value="Báo cáo lỗi">Báo cáo lỗi kỹ thuật</option>
+                      <option value="Đóng góp nội dung">Đóng góp nội dung / tài liệu</option>
+                      <option value="Ý kiến dịch vụ">Phản ánh chất lượng dịch vụ hỗ trợ</option>
+                      <option value="Khác">Ý kiến đóng góp khác</option>
+                    </select>
+                  </div>
+
+                  {/* Subject */}
+                  <div className="flex flex-col space-y-2">
+                    <label htmlFor="feedback-form-subject" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
+                      Tiêu đề <span className="text-error">*</span>
+                    </label>
+                    <input
+                      id="feedback-form-subject"
+                      type="text"
+                      value={form.subject}
+                      onChange={(e) => setForm(f => ({ ...f, subject: e.target.value }))}
+                      className={`w-full h-12 px-4 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
+                        ${errors.subject ? "border-error" : "border-outline-variant dark:border-outline"}`}
+                      placeholder="Ví dụ: Góp ý cải tiến giao diện đọc nói"
+                      aria-describedby={errors.subject ? "subject-error" : undefined}
+                    />
+                    {errors.subject && (
+                      <p id="subject-error" className="text-error text-xs font-bold flex items-center gap-1">
+                        <Icon name="error" size="text-xs" />
+                        {errors.subject}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Accessibility barrier checkbox */}
+                <div className="flex items-start gap-3 p-4 bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-xl">
+                  <input
+                    id="feedback-form-barrier"
+                    type="checkbox"
+                    checked={form.isBarrierReport}
+                    onChange={(e) => setForm(f => ({ ...f, isBarrierReport: e.target.checked }))}
+                    className="w-5 h-5 accent-primary border-2 border-primary/30 rounded focus:ring-primary cursor-pointer mt-0.5"
+                  />
+                  <label htmlFor="feedback-form-barrier" className="text-xs font-bold text-on-surface-variant dark:text-tertiary-fixed-dim cursor-pointer leading-relaxed">
+                    Tôi muốn báo cáo một rào cản tiếp cận (lỗi hiển thị, đọc nội dung hoặc điều hướng bàn phím) mà tôi gặp phải trên website này.
+                  </label>
+                </div>
+
+                {/* Message details */}
+                <div className="flex flex-col space-y-2">
+                  <label htmlFor="feedback-form-message" className="text-label-large font-bold text-on-surface dark:text-inverse-on-surface">
+                    Nội dung chi tiết <span className="text-error">*</span>
+                  </label>
+                  <textarea
+                    id="feedback-form-message"
+                    rows="5"
+                    value={form.message}
+                    onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
+                    className={`w-full px-4 py-3 rounded-xl border-2 bg-surface-container-lowest dark:bg-tertiary text-on-surface dark:text-inverse-on-surface focus:outline-none focus:border-primary transition-all
+                      ${errors.message ? "border-error" : "border-outline-variant dark:border-outline"}`}
+                    placeholder="Nhập nội dung chi tiết cần góp ý hoặc phản hồi..."
+                    aria-describedby={errors.message ? "msg-error" : undefined}
+                  />
+                  {errors.message && (
+                    <p id="msg-error" className="text-error text-xs font-bold flex items-center gap-1">
+                      <Icon name="error" size="text-xs" />
+                      {errors.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-2">
+                  <Button type="submit" variant="primary" icon="send" className="w-full h-14 font-bold rounded-xl shadow-md">
+                    Gửi ý kiến góp ý
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
       </section>
     </div>
