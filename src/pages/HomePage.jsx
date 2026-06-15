@@ -1,33 +1,17 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccessibility } from "../contexts/AccessibilityContext";
+import { useLanguage } from "../contexts/LanguageContext";
 import SearchBar from "../components/ui/SearchBar";
 import ServiceCard from "../components/ui/ServiceCard";
 import Icon from "../components/ui/Icon";
-import Button from "../components/ui/Button";
-
-/**
- * HomePage — Main landing page
- *
- * Sections:
- *  1. Hero with gradient mesh, animated orbs, and search bar
- *  2. Service grid (3 cards, bento style)
- *  3. Stats / trust indicators
- *  4. CTA Banner (legal support)
- *
- * All content is in natural Vietnamese.
- * Uses semantic <section> elements with aria-labelledby.
- */
 
 const SERVICES = [
   {
     to: "/quyen-loi",
     icon: "gavel",
-    title: "Tra cứu quyền lợi",
-    description:
-      "Thông tin chi tiết về thủ tục hành chính, cấp giấy xác nhận và chính sách ưu đãi dành cho người khuyết tật.",
-    ariaLabel:
-      "Tra cứu quyền lợi, thủ tục hành chính và chính sách",
+    titleKey: "service_rights_title",
+    descKey: "service_rights_desc",
     iconBg: "bg-blue-50 dark:bg-blue-950/50",
     iconColor: "text-primary",
     iconBorder: "border-blue-200 dark:border-blue-800",
@@ -35,11 +19,8 @@ const SERVICES = [
   {
     to: "/ket-noi",
     icon: "diversity_3",
-    title: "Kết nối yêu thương",
-    description:
-      "Kết nối bạn với các cộng đồng và cá nhân sẵn lòng hỗ trợ, chia sẻ cùng người khuyết tật trên toàn quốc.",
-    ariaLabel:
-      "Kết nối yêu thương và hỗ trợ từ cộng đồng",
+    titleKey: "service_connection_title",
+    descKey: "service_connection_desc",
     iconBg: "bg-rose-50 dark:bg-rose-950/50",
     iconColor: "text-rose-600 dark:text-rose-400",
     iconBorder: "border-rose-200 dark:border-rose-800",
@@ -47,21 +28,17 @@ const SERVICES = [
   {
     to: "/ban-do",
     icon: "map",
-    title: "Bản đồ hỗ trợ",
-    description:
-      "Tìm kiếm cơ sở y tế, trung tâm phục hồi chức năng và địa điểm tiếp cận dành cho NKT gần bạn nhất.",
-    ariaLabel:
-      "Bản đồ hỗ trợ tìm kiếm cơ sở y tế, trung tâm gần nhất",
+    titleKey: "service_map_title",
+    descKey: "service_map_desc",
     iconBg: "bg-emerald-50 dark:bg-emerald-950/50",
     iconColor: "text-emerald-600 dark:text-emerald-400",
     iconBorder: "border-emerald-200 dark:border-emerald-800",
   },
 ];
 
-
-
 export default function HomePage() {
   const { state, speakText } = useAccessibility();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSearch = useCallback(
@@ -94,7 +71,7 @@ export default function HomePage() {
                           text-sm font-semibold text-primary dark:text-inverse-primary
                           animate-fade-up">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-dot" aria-hidden="true" />
-            Cổng thông tin hỗ trợ NKT hàng đầu Việt Nam
+            {t("home_hero_badge")}
           </div>
 
           <h1
@@ -104,20 +81,17 @@ export default function HomePage() {
                        font-extrabold leading-tight max-w-4xl
                        animate-fade-up stagger-1"
           >
-            Hòa nhập và Phát triển
-            <br className="hidden sm:block" />
-            cùng cộng đồng
+            {t("home_hero_title")}
           </h1>
 
           <p className="text-body-lg text-on-surface-variant dark:text-surface-dim
                         max-w-2xl animate-fade-up stagger-2">
-            Cổng thông tin hỗ trợ tiếp cận dịch vụ, chính sách và cơ hội việc
-            làm dành cho người khuyết tật tại Việt Nam.
+            {t("home_hero_desc")}
           </p>
 
           {/* Search Bar */}
           <div className="w-full mt-4 animate-fade-up stagger-3">
-            <SearchBar onSearch={handleSearch} />
+            <SearchBar onSearch={handleSearch} placeholder={t("home_search_placeholder")} />
           </div>
         </div>
 
@@ -153,17 +127,26 @@ export default function HomePage() {
                        text-gradient-primary
                        inline-block pb-1 font-extrabold"
           >
-            Dịch vụ trọng tâm
+            {t("home_services_title")}
           </h2>
           <p className="mt-3 text-body-md text-on-surface-variant dark:text-surface-dim max-w-xl mx-auto md:mx-0">
-            Những dịch vụ thiết yếu giúp người khuyết tật tiếp cận quyền lợi, kết nối cộng đồng và tìm kiếm hỗ trợ.
+            {t("home_services_desc")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {SERVICES.map((service, i) => (
             <div key={service.to} className={`animate-fade-up stagger-${i + 1}`}>
-              <ServiceCard {...service} />
+              <ServiceCard
+                to={service.to}
+                icon={service.icon}
+                title={t(service.titleKey)}
+                description={t(service.descKey)}
+                ariaLabel={t(service.titleKey)}
+                iconBg={service.iconBg}
+                iconColor={service.iconColor}
+                iconBorder={service.iconBorder}
+              />
             </div>
           ))}
         </div>
@@ -186,17 +169,16 @@ export default function HomePage() {
                             bg-white/10 text-sm font-semibold mb-4
                             border border-white/10">
               <Icon name="headset_mic" size="text-base" />
-              Hỗ trợ miễn phí
+              {t("home_cta_badge")}
             </div>
             <h2
               id="cta-heading"
               className="text-headline-lg-mobile md:text-headline-lg font-bold mb-4"
             >
-              Bạn cần hỗ trợ pháp lý trực tiếp?
+              {t("home_cta_title")}
             </h2>
             <p className="text-body-lg opacity-90">
-              Đội ngũ chuyên gia luật của chúng tôi luôn sẵn sàng tư vấn miễn
-              phí cho người khuyết tật và gia đình.
+              {t("home_cta_desc")}
             </p>
           </div>
 
@@ -214,7 +196,7 @@ export default function HomePage() {
                        hover:-translate-y-0.5"
           >
             <Icon name="call" size="text-xl" />
-            Liên hệ ngay
+            {t("home_cta_btn")}
           </button>
         </div>
       </section>

@@ -27,6 +27,18 @@ const defaultUsers = [
     region: "Hà Nội",
     needs: "Cần hỗ trợ các tài liệu âm thanh và giao diện giọng nói.",
     savedBenefits: ["benefit-1", "benefit-3"],
+    role: "user",
+  },
+  {
+    fullName: "Quản trị viên",
+    email: "admin@hoanhap.vn",
+    phone: "0987654321",
+    password: "AdminPassword123",
+    disabilityType: "không khuyết tật",
+    region: "Hà Nội",
+    needs: "",
+    savedBenefits: [],
+    role: "admin",
   }
 ];
 
@@ -42,6 +54,23 @@ export function AuthProvider({ children }) {
       const storedUsers = localStorage.getItem(REGISTERED_USERS_KEY);
       if (!storedUsers) {
         localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(defaultUsers));
+      } else {
+        // Ensure admin account is seeded if missing
+        const parsed = JSON.parse(storedUsers);
+        if (!parsed.some(u => u.email === "admin@hoanhap.vn")) {
+          parsed.push({
+            fullName: "Quản trị viên",
+            email: "admin@hoanhap.vn",
+            phone: "0987654321",
+            password: "AdminPassword123",
+            disabilityType: "không khuyết tật",
+            region: "Hà Nội",
+            needs: "",
+            savedBenefits: [],
+            role: "admin"
+          });
+          localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(parsed));
+        }
       }
 
       const activeUser = localStorage.getItem(ACTIVE_USER_KEY);
@@ -132,6 +161,7 @@ export function AuthProvider({ children }) {
       region: userData.region || "",
       needs: userData.needs || "",
       savedBenefits: [],
+      role: "user",
     };
 
     const updatedUsers = [...users, newUser];

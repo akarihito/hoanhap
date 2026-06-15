@@ -5,7 +5,7 @@ export default function AboutPage() {
   const { speakText } = useAccessibility();
 
   const handleReadCommitment = () => {
-    const text = `Cam kết hỗ trợ tiếp cận của Hoà Nhập. Cổng thông tin hỗ trợ người khuyết tật Việt Nam được thiết kế và tối ưu hóa tuân thủ tiêu chuẩn tiếp cận nội dung web WCAG 2.1 mức độ AA. Các tính năng cốt lõi bao gồm: Phóng to thu nhỏ cỡ chữ từ 80% đến 200%, chế độ tương phản cao cho người khiếm thị, đọc nội dung văn bản tự động bằng tiếng Việt trên từng phần tử rê chuột, và sơ đồ phím tắt điều hướng hoàn toàn bằng bàn phím.`;
+    const text = `Cam kết hỗ trợ tiếp cận của Hoà Nhập. Cổng thông tin hỗ trợ người khuyết tật Việt Nam được thiết kế và tối ưu hóa tuân thủ tiêu chuẩn tiếp cận nội dung web WCAG 2.2 mức độ AA. Các tính năng cốt lõi bao gồm: Phóng to thu nhỏ cỡ chữ từ 80% đến 200%, chế độ tương phản cao cho người khiếm thị, đọc nội dung văn bản tự động bằng tiếng Việt trên từng phần tử rê chuột, và sơ đồ phím tắt điều hướng hoàn toàn bằng bàn phím.`;
     speakText(text);
   };
 
@@ -70,7 +70,7 @@ export default function AboutPage() {
               Cam kết hỗ trợ tiếp cận
             </h2>
             <p className="text-body-medium text-on-surface-variant dark:text-tertiary-fixed-dim mb-6 leading-relaxed">
-              Cổng thông tin Hoà Nhập được tối ưu hóa tuân thủ tiêu chuẩn tiếp cận nội dung Web quốc tế <strong className="underline decoration-primary">WCAG 2.1 mức độ AA</strong>. Website được thiết kế đặc biệt nhằm hỗ trợ các nhóm người khuyết tật khác nhau:
+              Cổng thông tin Hoà Nhập được tối ưu hóa tuân thủ tiêu chuẩn tiếp cận nội dung Web quốc tế <strong className="underline decoration-primary">WCAG 2.2 mức độ AA</strong>. Website được thiết kế đặc biệt nhằm hỗ trợ các nhóm người khuyết tật khác nhau:
             </p>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-semibold" role="list">
               <li className="flex items-center gap-2" role="listitem">
@@ -143,7 +143,7 @@ export default function AboutPage() {
             <h3 className="font-bold text-lg text-on-surface dark:text-inverse-on-surface">Trần Quang Huy</h3>
             <p className="text-xs text-primary dark:text-inverse-primary font-bold uppercase tracking-wider mt-1">Kỹ sư Tiếp cận Web</p>
             <p className="text-xs text-on-surface-variant dark:text-tertiary-fixed-dim mt-3 leading-relaxed">
-              Phát triển các công cụ hỗ trợ tiếp cận WCAG 2.1, tối ưu hóa công nghệ đọc tiếng Việt và chatbot thông minh.
+              Phát triển các công cụ hỗ trợ tiếp cận WCAG 2.2, tối ưu hóa công nghệ đọc tiếng Việt và chatbot thông minh.
             </p>
           </div>
 

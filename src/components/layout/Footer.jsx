@@ -1,24 +1,21 @@
 import { Link } from "react-router-dom";
 import Icon from "../ui/Icon";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 /**
  * Footer — Premium site footer with brand info, navigation links, and social
- *
- * Accessibility:
- *  - Semantic <footer> element
- *  - aria-label on footer nav
- *  - All links have focus-visible rings
- *  - Responsive: stacks vertically on mobile
  */
 
 const FOOTER_LINKS = [
-  { to: "/ve-chung-toi", label: "Về chúng tôi", icon: "info" },
-  { to: "/dieu-khoan", label: "Điều khoản", icon: "description" },
-  { to: "/bao-mat", label: "Bảo mật", icon: "shield" },
-  { to: "/lien-he", label: "Liên hệ", icon: "mail" },
+  { to: "/ve-chung-toi", labelKey: "about", icon: "info" },
+  { to: "/dieu-khoan", labelKey: "terms", icon: "description" },
+  { to: "/bao-mat", labelKey: "privacy", icon: "shield" },
+  { to: "/lien-he", labelKey: "contact", icon: "mail" },
 ];
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer
       className="bg-[#111318] dark:bg-[#0a0c10]
@@ -40,8 +37,7 @@ export default function Footer() {
               <span className="font-extrabold text-xl text-white">Hoà Nhập</span>
             </div>
             <p className="text-sm leading-relaxed text-gray-500">
-              Cổng thông tin hỗ trợ tiếp cận dịch vụ, chính sách và cơ hội
-              việc làm dành cho người khuyết tật tại Việt Nam.
+              {t("footer_desc")}
             </p>
           </div>
 
@@ -61,7 +57,7 @@ export default function Footer() {
               >
                 <Icon name={link.icon} size="text-base"
                       className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
           </nav>
@@ -70,12 +66,12 @@ export default function Footer() {
         {/* ── Divider ── */}
         <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-600">
-            © {new Date().getFullYear()} Hoà Nhập — Mọi quyền được bảo lưu.
+            © {new Date().getFullYear()} Hoà Nhập — {t("all_rights_reserved")}.
           </p>
           <p className="text-xs text-gray-600 flex items-center gap-1">
-            Xây dựng với
+            {t("footer_built_with")}
             <Icon name="favorite" filled size="text-xs" className="text-rose-500" />
-            cho cộng đồng NKT Việt Nam
+            {t("footer_built_for")}
           </p>
         </div>
       </div>

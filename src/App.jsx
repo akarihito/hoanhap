@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import MainLayout from "./components/layout/MainLayout";
 import HomePage from "./pages/HomePage";
@@ -14,15 +15,17 @@ import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import SocialAllowancePage from "./pages/SocialAllowancePage";
+import AdminPage from "./pages/AdminPage";
 
 /**
  * App — Root application component
  *
  * Architecture:
  *  AccessibilityProvider (global state)
- *    └─ AuthProvider (user session management)
- *        └─ BrowserRouter
- *            └─ Routes
+ *    └─ LanguageProvider (translation module)
+ *        └─ AuthProvider (user session management)
+ *            └─ BrowserRouter
  *                └─ MainLayout (sidebar + header + footer shell)
  *                    ├─ / → HomePage
  *                    ├─ /dang-nhap → LoginPage
@@ -33,33 +36,38 @@ import PrivacyPage from "./pages/PrivacyPage";
 export default function App() {
   return (
     <AccessibilityProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/dang-nhap" element={<LoginPage />} />
-              <Route path="/dang-ky" element={<RegisterPage />} />
-              <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
-              <Route path="/ho-so" element={<ProfilePage />} />
+      <LanguageProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/dang-nhap" element={<LoginPage />} />
+                <Route path="/dang-ky" element={<RegisterPage />} />
+                <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
+                <Route path="/ho-so" element={<ProfilePage />} />
 
-              {/* ── Phase 3: Core Modules ── */}
-              <Route path="/quyen-loi" element={<RightsPage />} />
-              <Route path="/ket-noi" element={<ConnectionPage />} />
-              <Route path="/ban-do" element={<SupportMapPage />} />
+                {/* ── Phase 3: Core Modules ── */}
+                <Route path="/quyen-loi" element={<RightsPage />} />
+                <Route path="/ket-noi" element={<ConnectionPage />} />
+                <Route path="/ban-do" element={<SupportMapPage />} />
 
-              {/* ── Additional Completed Pages ── */}
-              <Route path="/lien-he" element={<ContactPage />} />
-              <Route path="/ve-chung-toi" element={<AboutPage />} />
-              <Route path="/dieu-khoan" element={<TermsPage />} />
-              <Route path="/bao-mat" element={<PrivacyPage />} />
+                {/* ── Additional Completed Pages ── */}
+                <Route path="/lien-he" element={<ContactPage />} />
+                <Route path="/ve-chung-toi" element={<AboutPage />} />
+                <Route path="/dieu-khoan" element={<TermsPage />} />
+                <Route path="/bao-mat" element={<PrivacyPage />} />
 
-              {/* ── Phase 5: Admin ── */}
-              {/* <Route path="/admin/*" element={<AdminDashboard />} /> */}
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+                {/* ── Phase 4: Social Allowance ── */}
+                <Route path="/tro-cap" element={<SocialAllowancePage />} />
+
+                {/* ── Phase 5: Admin Panel ── */}
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </LanguageProvider>
     </AccessibilityProvider>
   );
 }

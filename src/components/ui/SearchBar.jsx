@@ -1,29 +1,18 @@
 import { useState, useCallback } from "react";
 import { useAccessibility } from "../../contexts/AccessibilityContext";
+import { useLanguage } from "../../contexts/LanguageContext";
 import Icon from "./Icon";
 
-/**
- * SearchBar — Hero search bar with suggestions
- *
- * Accessibility:
- *  - <label> linked to input via htmlFor/id
- *  - sr-only label for screen readers
- *  - Search icon is decorative (aria-hidden)
- *  - Submit button with clear text
- *  - Quick suggestion tags as accessible links
- *
- * @param {Function} onSearch - Callback with search query string
- */
-
 const SUGGESTIONS = [
-  { label: "Cấp thẻ NKT", query: "Cấp thẻ NKT", icon: "badge" },
-  { label: "Việc làm tại nhà", query: "Việc làm tại nhà", icon: "work" },
-  { label: "Hỗ trợ pháp lý", query: "Hỗ trợ pháp lý", icon: "gavel" },
+  { labelKey: "suggestion_tag_nkt", query: "Cấp thẻ NKT", icon: "badge" },
+  { labelKey: "suggestion_tag_work", query: "Việc làm tại nhà", icon: "work" },
+  { labelKey: "suggestion_tag_legal", query: "Hỗ trợ pháp lý", icon: "gavel" },
 ];
 
 export default function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
   const { state, speakText } = useAccessibility();
+  const { t } = useLanguage();
 
   const handleSubmit = useCallback(
     (e) => {
@@ -54,7 +43,7 @@ export default function SearchBar({ onSearch }) {
       {/* Search Form */}
       <form onSubmit={handleSubmit} role="search" className="relative group search-glow rounded-2xl transition-all duration-300">
         <label htmlFor="main-search" className="sr-only">
-          Tìm kiếm thông tin, dịch vụ
+          {t("search_input_label")}
         </label>
 
         {/* Search icon (decorative) */}
@@ -72,7 +61,7 @@ export default function SearchBar({ onSearch }) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Tìm kiếm nhanh dịch vụ, chính sách, việc làm..."
+          placeholder={t("search_placeholder")}
           className="block w-full pl-16 pr-6 md:pr-40 py-5 md:py-6
                      border border-outline-variant/50 rounded-2xl
                      leading-5 bg-surface-container-lowest dark:bg-inverse-surface
@@ -98,7 +87,7 @@ export default function SearchBar({ onSearch }) {
                      active:scale-95 shadow-md"
         >
           <Icon name="search" size="text-lg" />
-          Tìm kiếm
+          {t("search_button")}
         </button>
       </form>
 
@@ -106,16 +95,16 @@ export default function SearchBar({ onSearch }) {
       <div
         className="flex flex-wrap justify-center gap-3 mt-6"
         role="list"
-        aria-label="Gợi ý tìm kiếm"
+        aria-label={t("search_suggestions_label")}
       >
         <span className="text-sm font-semibold text-on-surface-variant/70 dark:text-surface-dim
                          flex items-center gap-1">
           <Icon name="trending_up" size="text-base" />
-          Phổ biến:
+          {t("search_popular_prefix")}
         </span>
         {SUGGESTIONS.map((item) => (
           <button
-            key={item.label}
+            key={item.labelKey}
             role="listitem"
             onClick={() => handleSuggestionClick(item.query)}
             className="suggestion-chip text-sm font-semibold text-primary dark:text-inverse-primary
@@ -127,7 +116,7 @@ export default function SearchBar({ onSearch }) {
                        border border-primary/10 dark:border-primary/20"
           >
             <Icon name={item.icon} size="text-sm" />
-            {item.label}
+            {t(item.labelKey)}
           </button>
         ))}
       </div>
