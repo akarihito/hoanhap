@@ -233,11 +233,11 @@ function FocusTrapModal({ isOpen, onClose, title, children }) {
     >
       <div
         ref={modalRef}
-        className="bg-surface dark:bg-tertiary border-2 border-outline dark:border-outline-variant w-full max-w-xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] theme-transition"
+        className="bg-surface dark:bg-tertiary border-2 border-outline dark:border-outline-variant w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] theme-transition"
       >
         {/* Header */}
-        <div className="flex justify-between items-center p-5 border-b border-outline-variant/50 bg-primary text-on-primary">
-          <h2 id="rights-modal-title" className="font-bold text-lg leading-snug">{title}</h2>
+        <div className="flex justify-between items-center p-6 border-b border-outline-variant/50 bg-primary text-on-primary">
+          <h2 id="rights-modal-title" className="font-bold text-xl md:text-2xl leading-snug">{title}</h2>
           <button
             onClick={onClose}
             aria-label="Đóng hộp thoại thông tin quyền lợi"
@@ -248,7 +248,7 @@ function FocusTrapModal({ isOpen, onClose, title, children }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-grow text-on-surface dark:text-inverse-on-surface leading-relaxed text-sm">
+        <div className="p-8 overflow-y-auto flex-grow text-on-surface dark:text-inverse-on-surface leading-relaxed text-base">
           {children}
         </div>
       </div>
@@ -733,16 +733,16 @@ export default function RightsPage() {
           <div className="space-y-6 text-on-surface dark:text-inverse-on-surface">
             {/* Category tag */}
             <div className="flex justify-between items-center">
-              <span className="px-3 py-1 bg-primary/10 text-primary dark:bg-inverse-primary/20 dark:text-inverse-primary text-xs font-bold rounded-full">
+              <span className="px-3 py-1.5 bg-primary/10 text-primary dark:bg-inverse-primary/20 dark:text-inverse-primary text-sm font-bold rounded-full">
                 {activeModalPolicy.category}
               </span>
               <button
                 onClick={(e) => handleToggleBookmark(e, activeModalPolicy)}
-                className="text-xs font-bold text-primary dark:text-inverse-primary hover:underline flex items-center gap-1.5 accessibility-focus"
+                className="text-sm font-bold text-primary dark:text-inverse-primary hover:underline flex items-center gap-1.5 accessibility-focus"
               >
                 <Icon
                   name="bookmark"
-                  size="text-sm"
+                  size="text-base"
                   filled={savedRights.includes(activeModalPolicy.id)}
                 />
                 {savedRights.includes(activeModalPolicy.id) ? "Bỏ lưu quyền lợi" : "Lưu vào hồ sơ"}
@@ -750,39 +750,39 @@ export default function RightsPage() {
             </div>
 
             {/* Description */}
-            <p className="text-sm font-semibold leading-relaxed border-l-4 border-primary pl-3 py-1 bg-surface-container dark:bg-tertiary-container/30 rounded-r-lg">
+            <p className="text-base md:text-lg font-semibold leading-relaxed border-l-4 border-primary pl-4 py-2 bg-surface-container dark:bg-tertiary-container/30 rounded-r-lg">
               {activeModalPolicy.description}
             </p>
 
             {/* Target conditions */}
             <div>
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-outline dark:text-tertiary-fixed-dim mb-1">
+              <h4 className="text-sm font-extrabold uppercase tracking-wider text-outline dark:text-tertiary-fixed-dim mb-2">
                 Điều kiện áp dụng
               </h4>
-              <p className="text-sm bg-surface-container-low dark:bg-tertiary-container/20 p-3 rounded-lg leading-relaxed">
+              <p className="text-base bg-surface-container-low dark:bg-tertiary-container/20 p-4 rounded-lg leading-relaxed">
                 {activeModalPolicy.conditions}
               </p>
             </div>
 
             {/* Support Rate */}
             <div>
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-outline dark:text-tertiary-fixed-dim mb-1">
+              <h4 className="text-sm font-extrabold uppercase tracking-wider text-outline dark:text-tertiary-fixed-dim mb-2">
                 Mức hỗ trợ cụ thể
               </h4>
-              <p className="text-sm bg-surface-container-low dark:bg-tertiary-container/20 p-3 rounded-lg leading-relaxed font-bold text-secondary dark:text-inverse-primary">
+              <p className="text-base bg-surface-container-low dark:bg-tertiary-container/20 p-4 rounded-lg leading-relaxed font-bold text-secondary dark:text-inverse-primary">
                 {activeModalPolicy.supportRate}
               </p>
             </div>
 
             {/* Document Checklists */}
             <div>
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-outline dark:text-tertiary-fixed-dim mb-2">
+              <h4 className="text-sm font-extrabold uppercase tracking-wider text-outline dark:text-tertiary-fixed-dim mb-2">
                 Hồ sơ chuẩn bị cần thiết
               </h4>
-              <ul className="space-y-2" role="list">
+              <ul className="space-y-3" role="list">
                 {activeModalPolicy.documents.map((docName, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-xs">
-                    <Icon name="check_circle" className="text-emerald-600 dark:text-emerald-400 mt-0.5" size="text-sm" />
+                  <li key={idx} className="flex items-start gap-2 text-sm">
+                    <Icon name="check_circle" className="text-emerald-600 dark:text-emerald-400 mt-0.5" size="text-base" />
                     <span>{docName}</span>
                   </li>
                 ))}
@@ -790,21 +790,11 @@ export default function RightsPage() {
             </div>
 
             {/* Close actions */}
-            <div className="flex gap-4 border-t border-outline-variant/30 pt-4">
+            <div className="flex justify-center border-t border-outline-variant/30 pt-6">
               <Button
                 variant="primary"
-                onClick={() => {
-                  triggerToast(`Đang liên kết hồ sơ của bạn...`);
-                  setActiveModalPolicy(null);
-                }}
-                className="flex-1"
-              >
-                Nộp hồ sơ trực tuyến
-              </Button>
-              <Button
-                variant="secondary"
                 onClick={() => setActiveModalPolicy(null)}
-                className="flex-1 border-2"
+                className="w-full sm:w-48 font-bold text-base h-12"
               >
                 Đóng
               </Button>
