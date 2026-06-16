@@ -260,6 +260,34 @@ export default function RightsPage() {
   const { state: accessState, speakText } = useAccessibility();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Load policies and legal documents dynamically
+  const [policies, setPolicies] = useState(() => {
+    const stored = localStorage.getItem("hoa-nhap-policies");
+    if (stored) return JSON.parse(stored);
+    localStorage.setItem("hoa-nhap-policies", JSON.stringify(POLICIES_DATA));
+    return POLICIES_DATA;
+  });
+
+  const [documents, setDocuments] = useState(() => {
+    const stored = localStorage.getItem("hoa-nhap-legal-documents");
+    if (stored) return JSON.parse(stored);
+    localStorage.setItem("hoa-nhap-legal-documents", JSON.stringify(LEGAL_DOCUMENTS));
+    return LEGAL_DOCUMENTS;
+  });
+
+  // Sync with localStorage modifications in real-time
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedPol = localStorage.getItem("hoa-nhap-policies");
+      if (storedPol) setPolicies(JSON.parse(storedPol));
+      
+      const storedDocs = localStorage.getItem("hoa-nhap-legal-documents");
+      if (storedDocs) setDocuments(JSON.parse(storedDocs));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   // Filters State
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") || "");
   const [selectedDisability, setSelectedDisability] = useState("Tất cả");
@@ -329,7 +357,7 @@ export default function RightsPage() {
 
   // Real-time filtering logic
   const filteredPolicies = useMemo(() => {
-    return POLICIES_DATA.filter((pol) => {
+    return policies.filter((pol) => {
       const matchesSearch =
         pol.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         pol.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -628,7 +656,7 @@ export default function RightsPage() {
           </h2>
 
           <ul className="space-y-4" role="list">
-            {LEGAL_DOCUMENTS.map((doc) => (
+            {documents.map((doc) => (
               <li
                 key={doc.id}
                 onFocus={() => handleSpeakItem(`${doc.title}. ${doc.date}`)}
