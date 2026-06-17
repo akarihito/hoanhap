@@ -17,6 +17,7 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import SocialAllowancePage from "./pages/SocialAllowancePage";
 import AdminPage from "./pages/AdminPage";
+import ForumPage from "./pages/ForumPage";
 
 /**
  * App — Root application component
@@ -51,6 +52,7 @@ export default function App() {
                 <Route path="/quyen-loi" element={<RightsPage />} />
                 <Route path="/ket-noi" element={<ConnectionPage />} />
                 <Route path="/ban-do" element={<SupportMapPage />} />
+                <Route path="/dien-dan" element={<ForumPage />} />
 
                 {/* ── Additional Completed Pages ── */}
                 <Route path="/gop-y" element={<FeedbackPage />} />

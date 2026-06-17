@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import Icon from "../components/ui/Icon";
 import Button from "../components/ui/Button";
+import { db } from "../firebase";
+import { collection, onSnapshot, query, where, addDoc } from "firebase/firestore";
 
 const VIETNAM_PROVINCES = [
   "Hà Nội",
@@ -225,12 +227,19 @@ function FocusTrapModal({ isOpen, onClose, title, children }) {
 }
 
 export default function ConnectionPage() {
-  const [connections, setConnections] = useState(() => {
-    const saved = localStorage.getItem("hoa-nhap-connections");
-    if (saved) return JSON.parse(saved);
-    localStorage.setItem("hoa-nhap-connections", JSON.stringify(INITIAL_CONNECTIONS));
-    return INITIAL_CONNECTIONS;
-  });
+  const [connections, setConnections] = useState([]);
+
+  useEffect(() => {
+    const q = query(collection(db, "connections"), where("status", "==", "approved"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setConnections(list);
+    });
+    return unsubscribe;
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedSupportType, setSelectedSupportType] = useState("");
@@ -302,12 +311,10 @@ export default function ConnectionPage() {
     }, 2000);
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     
-    // Create new volunteer record locally
     const newVol = {
-      id: `conn-${Date.now()}`,
       name: regForm.name,
       type: "tình nguyện viên",
       typeLabel: "Tình nguyện viên",
@@ -319,12 +326,17 @@ export default function ConnectionPage() {
       email: regForm.email,
       phone: regForm.phone,
       availability: regForm.availability || "Thỏa thuận",
-      details: regForm.details
+      details: regForm.details,
+      status: "pending" // Needs Admin approval
     };
 
-    const updated = [newVol, ...connections];
-    setConnections(updated);
-    localStorage.setItem("hoa-nhap-connections", JSON.stringify(updated));
+    try {
+      await addDoc(collection(db, "connections"), newVol);
+    } catch (err) {
+      console.error("Failed to register volunteer:", err);
+      alert("Đăng ký không thành công. Vui lòng thử lại sau.");
+      return;
+    }
 
     setRegSuccess(true);
     setRegForm({

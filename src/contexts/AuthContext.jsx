@@ -1,46 +1,24 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useAccessibility } from "./AccessibilityContext";
+import { auth, db } from "../firebase";
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut,
+  sendPasswordResetEmail
+} from "firebase/auth";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { seedDatabase } from "../utils/firebaseSeed";
 
 /* ═══════════════════════════════════════════════════════════════════
-   AuthContext
+   AuthContext (Firebase Integrated)
    ───────────────────────────────────────────────────────────────────
    Handles client-side authentication and session management.
-   Persists users to local storage for realistic page-refresh behaviors.
-   
-   Integrates with AccessibilityContext for audio announcements of
-   auth events (login, logout, errors).
+   Connects to Firebase Auth and persists profile data in Firestore.
    ═══════════════════════════════════════════════════════════════════ */
 
 const AuthContext = createContext(null);
-
-const ACTIVE_USER_KEY = "hoa-nhap-active-user";
-const REGISTERED_USERS_KEY = "hoa-nhap-registered-users";
-
-// Pre-populate with a mock test user if none exists
-const defaultUsers = [
-  {
-    fullName: "Nguyễn Văn A",
-    email: "test@hoanhap.vn",
-    phone: "0912345678",
-    password: "Password123",
-    disabilityType: "trực quan",
-    region: "Hà Nội",
-    needs: "Cần hỗ trợ các tài liệu âm thanh và giao diện giọng nói.",
-    savedBenefits: ["benefit-1", "benefit-3"],
-    role: "user",
-  },
-  {
-    fullName: "Quản trị viên",
-    email: "admin@hoanhap.vn",
-    phone: "0987654321",
-    password: "AdminPassword123",
-    disabilityType: "không khuyết tật",
-    region: "Hà Nội",
-    needs: "",
-    savedBenefits: [],
-    role: "admin",
-  }
-];
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -48,82 +26,82 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState(null);
   const { speakText } = useAccessibility();
 
-  // Initialize registered users database and load active user session
+  // Run database seeding on start, then initialize active user session
   useEffect(() => {
-    try {
-      const storedUsers = localStorage.getItem(REGISTERED_USERS_KEY);
-      if (!storedUsers) {
-        localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(defaultUsers));
-      } else {
-        // Ensure admin account is seeded if missing
-        const parsed = JSON.parse(storedUsers);
-        if (!parsed.some(u => u.email === "admin@hoanhap.vn")) {
-          parsed.push({
-            fullName: "Quản trị viên",
-            email: "admin@hoanhap.vn",
-            phone: "0987654321",
-            password: "AdminPassword123",
-            disabilityType: "không khuyết tật",
-            region: "Hà Nội",
-            needs: "",
-            savedBenefits: [],
-            role: "admin"
-          });
-          localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(parsed));
-        }
-      }
-
-      const activeUser = localStorage.getItem(ACTIVE_USER_KEY);
-      if (activeUser) {
-        setUser(JSON.parse(activeUser));
-      }
-    } catch (err) {
-      console.error("[AuthContext] Initialization failed:", err);
-    } finally {
-      setLoading(false);
-    }
+    const initDb = async () => {
+      await seedDatabase();
+    };
+    initDb();
   }, []);
 
-  // Helper to fetch current registered users from localStorage
-  const getRegisteredUsers = () => {
-    try {
-      const stored = localStorage.getItem(REGISTERED_USERS_KEY);
-      return stored ? JSON.parse(stored) : defaultUsers;
-    } catch (err) {
-      return defaultUsers;
-    }
-  };
+  // Listen for Firebase Auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          const userDocRef = doc(db, "users", firebaseUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            setUser({
+              uid: firebaseUser.uid,
+              ...userData
+            });
+          } else {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("[AuthContext] Auth state change handler failed:", err);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   // ── Login ────────────────────────────────────────────────────────
-  const login = useCallback(async (emailOrPhone, password) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     setError(null);
-    
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
 
-    const users = getRegisteredUsers();
-    const matchedUser = users.find(
-      (u) =>
-        (u.email === emailOrPhone || u.phone === emailOrPhone) &&
-        u.password === password
-    );
-
-    if (matchedUser) {
-      const sessionUser = { ...matchedUser };
-      delete sessionUser.password; // Don't store plain text password in active session state
-
-      setUser(sessionUser);
-      localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(sessionUser));
-      setLoading(false);
-      speakText(`Đăng nhập thành công. Chào mừng ${sessionUser.fullName} trở lại.`);
-      return sessionUser;
-    } else {
-      const errMsg = "Tên đăng nhập hoặc mật khẩu không chính xác.";
+      const userDocRef = doc(db, "users", firebaseUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        if (userData.status === "suspended") {
+          await signOut(auth);
+          throw new Error("Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ quản trị viên.");
+        }
+        const sessionUser = { uid: firebaseUser.uid, ...userData };
+        setUser(sessionUser);
+        speakText(`Đăng nhập thành công. Chào mừng ${userData.fullName} trở lại.`);
+        return sessionUser;
+      } else {
+        throw new Error("Không tìm thấy thông tin tài khoản trên hệ thống.");
+      }
+    } catch (err) {
+      let errMsg = "Đăng nhập thất bại. Vui lòng kiểm tra lại.";
+      if (
+        err.code === "auth/user-not-found" || 
+        err.code === "auth/wrong-password" || 
+        err.code === "auth/invalid-credential"
+      ) {
+        errMsg = "Tên đăng nhập hoặc mật khẩu không chính xác.";
+      } else {
+        errMsg = err.message;
+      }
       setError(errMsg);
-      setLoading(false);
       speakText(`Lỗi đăng nhập: ${errMsg}`);
       throw new Error(errMsg);
+    } finally {
+      setLoading(false);
     }
   }, [speakText]);
 
@@ -131,100 +109,76 @@ export function AuthProvider({ children }) {
   const register = useCallback(async (userData) => {
     setLoading(true);
     setError(null);
-    
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
+      const firebaseUser = userCredential.user;
 
-    const users = getRegisteredUsers();
-    
-    // Check duplicates
-    if (users.some((u) => u.email === userData.email)) {
-      const errMsg = "Email này đã được sử dụng.";
+      const newUser = {
+        fullName: userData.fullName,
+        email: userData.email,
+        phone: userData.phone || "",
+        disabilityType: userData.disabilityType || "không khuyết tật",
+        region: userData.region || "",
+        needs: userData.needs || "",
+        savedBenefits: [],
+        role: "user",
+        status: "active",
+        createdAt: new Date().toISOString()
+      };
+
+      await setDoc(doc(db, "users", firebaseUser.uid), newUser);
+      
+      const sessionUser = { uid: firebaseUser.uid, ...newUser };
+      setUser(sessionUser);
+      speakText(`Đăng ký tài khoản thành công. Đã tự động đăng nhập làm ${sessionUser.fullName}.`);
+      return sessionUser;
+    } catch (err) {
+      let errMsg = err.message;
+      if (err.code === "auth/email-already-in-use") {
+        errMsg = "Email này đã được sử dụng.";
+      }
       setError(errMsg);
-      setLoading(false);
       speakText(errMsg);
       throw new Error(errMsg);
-    }
-    if (userData.phone && users.some((u) => u.phone === userData.phone)) {
-      const errMsg = "Số điện thoại này đã được đăng ký.";
-      setError(errMsg);
+    } finally {
       setLoading(false);
-      speakText(errMsg);
-      throw new Error(errMsg);
     }
-
-    const newUser = {
-      fullName: userData.fullName,
-      email: userData.email,
-      phone: userData.phone || "",
-      password: userData.password,
-      disabilityType: userData.disabilityType || "không khuyết tật",
-      region: userData.region || "",
-      needs: userData.needs || "",
-      savedBenefits: [],
-      role: "user",
-    };
-
-    const updatedUsers = [...users, newUser];
-    localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(updatedUsers));
-
-    // Log the user in directly after registering
-    const sessionUser = { ...newUser };
-    delete sessionUser.password;
-
-    setUser(sessionUser);
-    localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(sessionUser));
-    setLoading(false);
-    speakText(`Đăng ký tài khoản thành công. Đã tự động đăng nhập làm ${sessionUser.fullName}.`);
-    return sessionUser;
   }, [speakText]);
 
   // ── Logout ───────────────────────────────────────────────────────
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem(ACTIVE_USER_KEY);
-    speakText("Đã đăng xuất khỏi hệ thống.");
+  const logout = useCallback(async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      speakText("Đã đăng xuất khỏi hệ thống.");
+    } catch (err) {
+      console.error("[AuthContext] Logout failed:", err);
+    }
   }, [speakText]);
 
   // ── Update Profile ───────────────────────────────────────────────
   const updateProfile = useCallback(async (updatedData) => {
-    if (!user) return;
+    if (!user || !user.uid) return;
     setLoading(true);
     setError(null);
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      await updateDoc(userDocRef, updatedData);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const users = getRegisteredUsers();
-    
-    // Find index of current user in registered list
-    const userIndex = users.findIndex((u) => u.email === user.email);
-    
-    if (userIndex !== -1) {
-      const currentFullRecord = users[userIndex];
-      const updatedRecord = {
-        ...currentFullRecord,
-        ...updatedData,
-        // Keep primary keys and password secure
-        email: currentFullRecord.email, 
-        password: currentFullRecord.password, 
+      const updatedSessionUser = {
+        ...user,
+        ...updatedData
       };
-
-      users[userIndex] = updatedRecord;
-      localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(users));
-
-      const updatedSessionUser = { ...updatedRecord };
-      delete updatedSessionUser.password;
-
       setUser(updatedSessionUser);
-      localStorage.setItem(ACTIVE_USER_KEY, JSON.stringify(updatedSessionUser));
-      setLoading(false);
       speakText("Cập nhật hồ sơ cá nhân thành công.");
       return updatedSessionUser;
-    } else {
-      const errMsg = "Không tìm thấy hồ sơ người dùng để cập nhật.";
+    } catch (err) {
+      const errMsg = "Không thể cập nhật hồ sơ người dùng.";
       setError(errMsg);
-      setLoading(false);
       speakText(errMsg);
       throw new Error(errMsg);
+    } finally {
+      setLoading(false);
     }
   }, [user, speakText]);
 
@@ -256,22 +210,20 @@ export function AuthProvider({ children }) {
   const resetPassword = useCallback(async (email) => {
     setLoading(true);
     setError(null);
-
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    const users = getRegisteredUsers();
-    const exists = users.some((u) => u.email === email);
-
-    if (exists) {
-      setLoading(false);
+    try {
+      await sendPasswordResetEmail(auth, email);
       speakText("Yêu cầu đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra email.");
       return true;
-    } else {
-      const errMsg = "Email này chưa được đăng ký trong hệ thống.";
+    } catch (err) {
+      let errMsg = "Gửi yêu cầu đặt lại mật khẩu thất bại.";
+      if (err.code === "auth/user-not-found") {
+        errMsg = "Email này chưa được đăng ký trong hệ thống.";
+      }
       setError(errMsg);
-      setLoading(false);
       speakText(errMsg);
       throw new Error(errMsg);
+    } finally {
+      setLoading(false);
     }
   }, [speakText]);
 
@@ -299,3 +251,4 @@ export function useAuth() {
 }
 
 export default AuthContext;
+

@@ -9,6 +9,7 @@ const translations = {
     rights: "Quyền lợi",
     allowance: "Trợ cấp xã hội",
     connection: "Kết nối",
+    forum: "Diễn đàn kết nối",
     map: "Bản đồ hỗ trợ",
     login: "Đăng nhập",
     register: "Đăng ký",
@@ -74,6 +75,8 @@ const translations = {
     service_map_desc: "Tìm kiếm cơ sở y tế, trung tâm phục hồi chức năng và địa điểm tiếp cận dành cho NKT gần bạn nhất.",
     service_allowance_title: "Chế độ trợ cấp",
     service_allowance_desc: "Tra cứu các khoản trợ cấp, công cụ tính toán tự động mức hưởng theo Nghị định 20 và hướng dẫn thủ tục.",
+    service_forum_title: "Diễn đàn kết nối",
+    service_forum_desc: "Nơi thảo luận, chia sẻ kinh nghiệm sống, tìm bạn đồng hành và đăng ký hỗ trợ trực tiếp từ các tình nguyện viên.",
 
     // Search Bar
     search_input_label: "Tìm kiếm thông tin, dịch vụ",
@@ -120,6 +123,7 @@ const translations = {
     rights: "Rights & Benefits",
     allowance: "Social Allowance",
     connection: "Connection",
+    forum: "Forum",
     map: "Support Map",
     login: "Login",
     register: "Register",
@@ -185,6 +189,8 @@ const translations = {
     service_map_desc: "Find hospitals, accessible rehabilitation centers, and obstacle-free public locations near you.",
     service_allowance_title: "Social Allowance",
     service_allowance_desc: "Search monthly social allowance, calculate rates under Decree 20, and view guidelines.",
+    service_forum_title: "Community Forum",
+    service_forum_desc: "A shared space to post lifetips, diaries, seek companions, and offer direct community volunteer assistance.",
 
     // Search Bar
     search_input_label: "Search for info, services",

@@ -259,8 +259,9 @@ export function AccessibilityProvider({ children }) {
   // Uses Web Speech API with optimized Vietnamese voice selection.
   // Falls back to Google Translate TTS if no Vietnamese voice is installed.
   const speakText = useCallback(
-    (text) => {
+    (text, force = false) => {
       if (!text || typeof window === "undefined") return;
+      if (!state?.screenReader && !force) return;
 
       // Interrupt any active speech
       stopSpeaking();
@@ -307,8 +308,16 @@ export function AccessibilityProvider({ children }) {
         console.error("[TTS] Lỗi phát giọng nói:", err);
       }
     },
-    [stopSpeaking, browserVoices]
+    [stopSpeaking, browserVoices, state?.screenReader]
   );
+
+  const wasScreenReaderOn = useRef(state?.screenReader);
+  useEffect(() => {
+    if (state?.screenReader && !wasScreenReaderOn.current) {
+      speakText("Đã bật đọc nội dung bằng giọng nói.", true);
+    }
+    wasScreenReaderOn.current = !!state?.screenReader;
+  }, [state?.screenReader, speakText]);
 
   // ── Dispatch helpers ──────────────────────────────────────────
   const increaseFontScale = useCallback(

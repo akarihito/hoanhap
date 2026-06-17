@@ -3,147 +3,16 @@ import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import Icon from "../components/ui/Icon";
 import { useAccessibility } from "../contexts/AccessibilityContext";
-
-// Fallbacks for data initialization
-const DEFAULT_LOCATIONS = [
-  {
-    id: "loc-1",
-    name: "Bệnh viện Phục hồi chức năng Hà Nội",
-    category: "Cơ sở phục hồi chức năng",
-    icon: "local_hospital",
-    lat: 21.0022,
-    lng: 105.8016,
-    address: "Số 35 Lê Văn Thiêm, Thanh Xuân, Hà Nội",
-    phone: "024 3858 2234",
-    workingHours: "07:30 - 17:00",
-    distance: "1.2 km",
-    accessibilityBadges: ["Có đường dốc xe lăn", "Thang máy tiếp cận"],
-    utilities: ["Dốc xe lăn", "Thang máy"],
-    description: "Cơ sở y tế đầu ngành về phục hồi chức năng và điều trị vật lý trị liệu tại Hà Nội.",
-  },
-  {
-    id: "loc-2",
-    name: "Trung tâm Chăm sóc NKT Vì Ngày Mai",
-    category: "Trung tâm giáo dục đặc biệt",
-    icon: "school",
-    lat: 21.0065,
-    lng: 105.8362,
-    address: "Ngõ 120 Trường Chinh, Đống Đa, Hà Nội",
-    phone: "024 3869 2233",
-    workingHours: "08:00 - 18:00",
-    distance: "3.5 km",
-    accessibilityBadges: ["Lối vào bằng phẳng", "Chữ nổi Braille"],
-    utilities: ["Lối vào phẳng", "Chữ Braille"],
-    description: "Nơi cung cấp các lớp học nghề, can thiệp sớm và giáo dục đặc biệt.",
-  },
-  {
-    id: "loc-3",
-    name: "Sở Lao động - Thương binh & Xã hội Hà Nội",
-    category: "Cơ quan nhà nước",
-    icon: "groups",
-    lat: 21.0254,
-    lng: 105.8239,
-    address: "Số 75 Nguyễn Chí Thanh, Láng Hạ, Đống Đa, Hà Nội",
-    phone: "024 3773 2434",
-    workingHours: "08:00 - 17:00",
-    distance: "2.8 km",
-    accessibilityBadges: ["Có đường dốc xe lăn", "Thang máy tiếp cận"],
-    utilities: ["Dốc xe lăn", "Thang máy"],
-    description: "Cơ quan hành chính tiếp nhận và xử lý hồ sơ trợ cấp, chính sách ưu đãi.",
-  },
-];
-
-const DEFAULT_CONNECTIONS = [
-  {
-    id: "conn-1",
-    name: "Nguyễn Thu Hà",
-    type: "tình nguyện viên",
-    typeLabel: "Tình nguyện viên",
-    location: "Cầu Giấy, Hà Nội",
-    region: "Hà Nội",
-    supportType: "Hướng dẫn thủ tục",
-    description: "Có kinh nghiệm 5 năm hỗ trợ người khiếm thị làm các thủ tục hành chính.",
-    email: "thuha.nguyen@hoanhap.org",
-    phone: "0912345678",
-    availability: "Cuối tuần",
-    details: "Tôi hiện đang là kiểm toán viên nhưng dành thời gian rảnh cuối tuần tham gia thiện nguyện.",
-  },
-  {
-    id: "conn-2",
-    name: "Hành trình Hy vọng",
-    type: "cộng đồng",
-    typeLabel: "Cộng đồng",
-    location: "Quận 3, TP. Hồ Chí Minh",
-    region: "TP. Hồ Chí Minh",
-    supportType: "Vận chuyển",
-    description: "Tổ chức chuyên hỗ trợ vận chuyển người khuyết tật bằng phương tiện chuyên dụng.",
-    email: "hanhtrinhhyvong@hoanhap.org",
-    phone: "0987654321",
-    availability: "8:00 - 17:00",
-    details: "Sở hữu đội xe bán tải có lắp bệ nâng thủy lực chuyên chở xe lăn.",
-  },
-];
-
-const DEFAULT_POLICIES = [
-  {
-    id: "pol-1",
-    name: "Cấp thẻ Bảo hiểm y tế miễn phí",
-    category: "Chăm sóc sức khỏe",
-    icon: "medical_services",
-    description: "Cấp thẻ Bảo hiểm y tế miễn phí 100% chi phí khám chữa bệnh đối với người khuyết tật nặng và đặc biệt nặng.",
-    conditions: "Là người khuyết tật nặng hoặc đặc biệt nặng theo Giấy xác nhận mức độ khuyết tật.",
-    supportRate: "Miễn phí 100% mức đóng BHYT hàng năm và chi phí khám chữa bệnh đúng tuyến tại tất cả các cơ sở y tế nhà nước.",
-    documents: ["Tờ khai đăng ký cấp thẻ BHYT", "Bản sao Giấy xác nhận mức độ khuyết tật"],
-    disabilityTypes: ["Tất cả", "Trực quan/Khiếm thị", "Thính giác/Khiếm thính", "Vận động", "Trí tuệ"],
-    ageGroups: ["Tất cả", "Trẻ em (<16 tuổi)", "Người trưởng thành (16-60 tuổi)"],
-    provinces: ["Tất cả"],
-  },
-  {
-    id: "pol-2",
-    name: "Trợ cấp xã hội hàng tháng cho NKT nặng",
-    category: "Chăm sóc sức khỏe",
-    icon: "payments",
-    description: "Hỗ trợ tài chính hàng tháng đối với người khuyết tật nặng không có thu nhập hoặc ở điều kiện kinh tế khó khăn.",
-    conditions: "Người khuyết tật nặng, đặc biệt nặng được cấp Giấy xác nhận khuyết tật và có hộ khẩu thường trú tại địa phương.",
-    supportRate: "Hỗ trợ từ 540.000đ đến 900.000đ/tháng tùy theo mức độ khuyết tật và độ tuổi quy định tại địa phương.",
-    documents: ["Tờ khai đề nghị trợ cấp xã hội", "Bản sao Giấy xác nhận khuyết tật", "Bản sao CCCD"],
-    disabilityTypes: ["Tất cả", "Trực quan/Khiếm thị", "Thính giác/Khiếm thính", "Vận động"],
-    ageGroups: ["Tất cả", "Trẻ em (<16 tuổi)", "Người trưởng thành (16-60 tuổi)"],
-    provinces: ["Tất cả"],
-  },
-];
-
-const DEFAULT_DOCUMENTS = [
-  {
-    id: "doc-1",
-    title: "Luật Người khuyết tật số 51/2010/QH12",
-    date: "Ban hành ngày 17/06/2010",
-    url: "/documents/100699_l51qh.doc",
-  },
-  {
-    id: "doc-2",
-    title: "Nghị định 20/2021/NĐ-CP",
-    date: "Quy định chính sách trợ giúp xã hội đối với đối tượng bảo trợ xã hội",
-    url: "/documents/nghi_dinh_20_2021_nd_cp.pdf",
-  },
-];
-
-const DEFAULT_OFFICES = [
-  {
-    city: "Hà Nội",
-    name: "Sở Lao động - Thương binh và Xã hội Hà Nội",
-    address: "Số 75 Nguyễn Chí Thanh, Láng Hạ, Đống Đa, Hà Nội",
-    phone: "024 3835 8868",
-    email: "vanthu_soldsxh@hanoi.gov.vn",
-  },
-  {
-    city: "TP. Hồ Chí Minh",
-    name: "Sở Lao động - Thương binh và Xã hội TP.HCM",
-    address: "159 Pasteur, Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
-    phone: "028 3829 1302",
-    email: "sldtbxh@tphcm.gov.vn",
-  },
-];
+import { db } from "../firebase";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc
+} from "firebase/firestore";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -240,70 +109,97 @@ export default function AdminPage() {
   // Selected feedback for detail modal
   const [viewingFeedback, setViewingFeedback] = useState(null);
 
-  // Load datasets on mount
+  // Load datasets on mount using Firestore subscriptions
   useEffect(() => {
-    // 1. Users
-    const storedUsers = localStorage.getItem("hoa-nhap-registered-users");
-    if (storedUsers) setUsers(JSON.parse(storedUsers));
+    // 1. Sync Users
+    const unsubscribeUsers = onSnapshot(collection(db, "users"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setUsers(list);
+    });
 
-    // 2. Base Allowance Rate
-    const savedRate = localStorage.getItem("allowance-base-rate");
-    if (savedRate) {
-      setAllowanceRate(parseInt(savedRate, 10));
-      setRateInput(savedRate);
-    }
+    // 2. Sync Base Allowance Rate
+    const settingsRef = doc(db, "settings", "system");
+    const unsubscribeSettings = onSnapshot(settingsRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.allowanceBaseRate !== undefined) {
+          setAllowanceRate(Number(data.allowanceBaseRate));
+          setRateInput(String(data.allowanceBaseRate));
+        }
+      }
+    });
 
-    // 3. Policies & Documents
-    const storedPol = localStorage.getItem("hoa-nhap-policies");
-    if (storedPol) {
-      setPolicies(JSON.parse(storedPol));
-    } else {
-      localStorage.setItem("hoa-nhap-policies", JSON.stringify(DEFAULT_POLICIES));
-      setPolicies(DEFAULT_POLICIES);
-    }
+    // 3. Sync Policies
+    const unsubscribePolicies = onSnapshot(collection(db, "policies"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setPolicies(list);
+    });
 
-    const storedDocs = localStorage.getItem("hoa-nhap-legal-documents");
-    if (storedDocs) {
-      setDocuments(JSON.parse(storedDocs));
-    } else {
-      localStorage.setItem("hoa-nhap-legal-documents", JSON.stringify(DEFAULT_DOCUMENTS));
-      setDocuments(DEFAULT_DOCUMENTS);
-    }
+    // 4. Sync Documents
+    const unsubscribeDocs = onSnapshot(collection(db, "documents"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setDocuments(list);
+    });
 
-    // 4. Map Locations
-    const storedLocs = localStorage.getItem("hoa-nhap-map-locations");
-    if (storedLocs) {
-      setLocations(JSON.parse(storedLocs));
-    } else {
-      localStorage.setItem("hoa-nhap-map-locations", JSON.stringify(DEFAULT_LOCATIONS));
-      setLocations(DEFAULT_LOCATIONS);
-    }
+    // 5. Sync Map Locations
+    const unsubscribeLocations = onSnapshot(collection(db, "locations"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setLocations(list);
+    });
 
-    // 5. Connections
-    const storedConns = localStorage.getItem("hoa-nhap-connections");
-    if (storedConns) {
-      setConnections(JSON.parse(storedConns));
-    } else {
-      localStorage.setItem("hoa-nhap-connections", JSON.stringify(DEFAULT_CONNECTIONS));
-      setConnections(DEFAULT_CONNECTIONS);
-    }
+    // 6. Sync Connections
+    const unsubscribeConnections = onSnapshot(collection(db, "connections"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setConnections(list);
+    });
 
-    // 6. Welfare Offices
-    const storedOffices = localStorage.getItem("hoa-nhap-welfare-offices");
-    if (storedOffices) {
-      setOffices(JSON.parse(storedOffices));
-    } else {
-      localStorage.setItem("hoa-nhap-welfare-offices", JSON.stringify(DEFAULT_OFFICES));
-      setOffices(DEFAULT_OFFICES);
-    }
+    // 7. Sync Welfare Offices
+    const unsubscribeOffices = onSnapshot(collection(db, "welfareOffices"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setOffices(list);
+    });
 
-    // 7. Feedbacks
-    const storedFeedbacks = localStorage.getItem("hoa-nhap-feedbacks");
-    if (storedFeedbacks) setFeedbacks(JSON.parse(storedFeedbacks));
+    // 8. Sync Feedbacks
+    const unsubscribeFeedbacks = onSnapshot(collection(db, "feedbacks"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setFeedbacks(list);
+    });
+
+    return () => {
+      unsubscribeUsers();
+      unsubscribeSettings();
+      unsubscribePolicies();
+      unsubscribeDocs();
+      unsubscribeLocations();
+      unsubscribeConnections();
+      unsubscribeOffices();
+      unsubscribeFeedbacks();
+    };
   }, []);
 
   // Update Base Rate
-  const handleUpdateRate = (e) => {
+  const handleUpdateRate = async (e) => {
     e.preventDefault();
     const rateVal = parseInt(rateInput, 10);
     if (isNaN(rateVal) || rateVal <= 0) {
@@ -311,38 +207,42 @@ export default function AdminPage() {
       alert("Mức chuẩn trợ cấp phải là số dương.");
       return;
     }
-    localStorage.setItem("allowance-base-rate", rateInput);
-    setAllowanceRate(rateVal);
-    window.dispatchEvent(new Event("storage"));
-    speakText(`Đã cập nhật mức chuẩn trợ cấp xã hội thành ${rateVal.toLocaleString("vi-VN")} đồng.`);
-    alert("Cập nhật mức trợ cấp chuẩn thành công!");
+    try {
+      await setDoc(doc(db, "settings", "system"), { allowanceBaseRate: rateVal }, { merge: true });
+      speakText(`Đã cập nhật mức chuẩn trợ cấp xã hội thành ${rateVal.toLocaleString("vi-VN")} đồng.`);
+      alert("Cập nhật mức trợ cấp chuẩn thành công!");
+    } catch (err) {
+      console.error("Failed to update base rate:", err);
+      alert("Lỗi khi cập nhật mức trợ cấp.");
+    }
   };
 
   // Toggle user status
-  const toggleUserStatus = (email) => {
-    const updated = users.map((u) => {
-      if (u.email === email) {
-        const nextStatus = u.status === "suspended" ? "active" : "suspended";
-        speakText(`Đã thay đổi trạng thái của tài khoản ${u.fullName} thành ${nextStatus === "suspended" ? "Bị khoá" : "Đang hoạt động"}`);
-        return { ...u, status: nextStatus };
-      }
-      return u;
-    });
-    setUsers(updated);
-    localStorage.setItem("hoa-nhap-registered-users", JSON.stringify(updated));
+  const toggleUserStatus = async (userId, currentStatus) => {
+    try {
+      const nextStatus = currentStatus === "suspended" ? "active" : "suspended";
+      await updateDoc(doc(db, "users", userId), { status: nextStatus });
+      speakText(`Đã thay đổi trạng thái của tài khoản thành ${nextStatus === "suspended" ? "Bị khoá" : "Đang hoạt động"}`);
+    } catch (err) {
+      console.error("Failed to toggle user status:", err);
+    }
   };
 
-  const handleDeleteUser = (email) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
-      const updated = users.filter((u) => u.email !== email);
-      setUsers(updated);
-      localStorage.setItem("hoa-nhap-registered-users", JSON.stringify(updated));
-      speakText("Đã xóa tài khoản.");
+      try {
+        await deleteDoc(doc(db, "users", userId));
+        speakText("Đã xóa tài khoản.");
+        alert("Xóa tài khoản thành công!");
+      } catch (err) {
+        console.error("Failed to delete user:", err);
+        alert("Lỗi khi xóa tài khoản: " + err.message);
+      }
     }
   };
 
   // Save Rights Policy
-  const handleSavePolicy = (e) => {
+  const handleSavePolicy = async (e) => {
     e.preventDefault();
     if (!policyForm.name || !policyForm.description || !policyForm.supportRate) {
       alert("Vui lòng điền đầy đủ các thông tin bắt buộc.");
@@ -354,48 +254,30 @@ export default function AdminPage() {
     const ageArray = policyForm.ageGroupsText.split(",").map((s) => s.trim()).filter((s) => s);
     const provincesArray = policyForm.provincesText.split(",").map((s) => s.trim()).filter((s) => s);
 
-    if (editingPolicyId) {
-      const updated = policies.map((pol) => {
-        if (pol.id === editingPolicyId) {
-          return {
-            ...pol,
-            name: policyForm.name,
-            category: policyForm.category,
-            icon: policyForm.icon,
-            description: policyForm.description,
-            conditions: policyForm.conditions,
-            supportRate: policyForm.supportRate,
-            documents: docsArray,
-            disabilityTypes: disabilityArray,
-            ageGroups: ageArray,
-            provinces: provincesArray,
-          };
-        }
-        return pol;
-      });
-      setPolicies(updated);
-      localStorage.setItem("hoa-nhap-policies", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã cập nhật chính sách ${policyForm.name}.`);
-    } else {
-      const newPol = {
-        id: `pol-${Date.now()}`,
-        name: policyForm.name,
-        category: policyForm.category,
-        icon: policyForm.icon,
-        description: policyForm.description,
-        conditions: policyForm.conditions,
-        supportRate: policyForm.supportRate,
-        documents: docsArray,
-        disabilityTypes: disabilityArray,
-        ageGroups: ageArray,
-        provinces: provincesArray,
-      };
-      const updated = [newPol, ...policies];
-      setPolicies(updated);
-      localStorage.setItem("hoa-nhap-policies", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã thêm mới chính sách ${policyForm.name}.`);
+    const policyData = {
+      name: policyForm.name,
+      category: policyForm.category,
+      icon: policyForm.icon,
+      description: policyForm.description,
+      conditions: policyForm.conditions,
+      supportRate: policyForm.supportRate,
+      documents: docsArray,
+      disabilityTypes: disabilityArray,
+      ageGroups: ageArray,
+      provinces: provincesArray,
+    };
+
+    try {
+      if (editingPolicyId) {
+        await updateDoc(doc(db, "policies", editingPolicyId), policyData);
+        speakText(`Đã cập nhật chính sách ${policyForm.name}.`);
+      } else {
+        await addDoc(collection(db, "policies"), policyData);
+        speakText(`Đã thêm mới chính sách ${policyForm.name}.`);
+      }
+    } catch (err) {
+      console.error("Failed to save policy:", err);
+      alert("Lỗi khi lưu chính sách.");
     }
 
     setIsPolicyFormOpen(false);
@@ -431,52 +313,44 @@ export default function AdminPage() {
     setIsPolicyFormOpen(true);
   };
 
-  const handleDeletePolicy = (id) => {
+  const handleDeletePolicy = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa chính sách này?")) {
-      const updated = policies.filter((pol) => pol.id !== id);
-      setPolicies(updated);
-      localStorage.setItem("hoa-nhap-policies", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText("Đã xóa chính sách.");
+      try {
+        await deleteDoc(doc(db, "policies", id));
+        speakText("Đã xóa chính sách.");
+        alert("Xóa chính sách thành công!");
+      } catch (err) {
+        console.error("Failed to delete policy:", err);
+        alert("Lỗi khi xóa chính sách: " + err.message);
+      }
     }
   };
 
   // Save Legal Document
-  const handleSaveDoc = (e) => {
+  const handleSaveDoc = async (e) => {
     e.preventDefault();
     if (!docForm.title || !docForm.url) {
       alert("Vui lòng điền tiêu đề và liên kết.");
       return;
     }
 
-    if (editingDocId) {
-      const updated = documents.map((doc) => {
-        if (doc.id === editingDocId) {
-          return {
-            ...doc,
-            title: docForm.title,
-            date: docForm.date || "Không xác định",
-            url: docForm.url,
-          };
-        }
-        return doc;
-      });
-      setDocuments(updated);
-      localStorage.setItem("hoa-nhap-legal-documents", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã cập nhật văn bản ${docForm.title}.`);
-    } else {
-      const newDoc = {
-        id: `doc-${Date.now()}`,
-        title: docForm.title,
-        date: docForm.date || "Ban hành mới",
-        url: docForm.url,
-      };
-      const updated = [newDoc, ...documents];
-      setDocuments(updated);
-      localStorage.setItem("hoa-nhap-legal-documents", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã thêm mới văn bản ${docForm.title}.`);
+    const docData = {
+      title: docForm.title,
+      date: docForm.date || "Không xác định",
+      url: docForm.url,
+    };
+
+    try {
+      if (editingDocId) {
+        await updateDoc(doc(db, "documents", editingDocId), docData);
+        speakText(`Đã cập nhật văn bản ${docForm.title}.`);
+      } else {
+        await addDoc(collection(db, "documents"), docData);
+        speakText(`Đã thêm mới văn bản ${docForm.title}.`);
+      }
+    } catch (err) {
+      console.error("Failed to save document:", err);
+      alert("Lỗi khi lưu văn bản.");
     }
 
     setIsDocFormOpen(false);
@@ -494,18 +368,21 @@ export default function AdminPage() {
     setIsDocFormOpen(true);
   };
 
-  const handleDeleteDoc = (id) => {
+  const handleDeleteDoc = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa văn bản pháp luật này?")) {
-      const updated = documents.filter((doc) => doc.id !== id);
-      setDocuments(updated);
-      localStorage.setItem("hoa-nhap-legal-documents", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText("Đã xóa văn bản.");
+      try {
+        await deleteDoc(doc(db, "documents", id));
+        speakText("Đã xóa văn bản.");
+        alert("Xóa văn bản thành công!");
+      } catch (err) {
+        console.error("Failed to delete document:", err);
+        alert("Lỗi khi xóa văn bản: " + err.message);
+      }
     }
   };
 
   // Save/Update Map Location
-  const handleSaveLocation = (e) => {
+  const handleSaveLocation = async (e) => {
     e.preventDefault();
     if (!locForm.name || !locForm.address || !locForm.lat || !locForm.lng) {
       alert("Vui lòng điền đầy đủ các thông tin bắt buộc.");
@@ -514,50 +391,32 @@ export default function AdminPage() {
 
     const badgeArray = locForm.badgesText.split(",").map((s) => s.trim()).filter((s) => s);
 
-    if (editingLocId) {
-      const updated = locations.map((loc) => {
-        if (loc.id === editingLocId) {
-          return {
-            ...loc,
-            name: locForm.name,
-            category: locForm.category,
-            address: locForm.address,
-            phone: locForm.phone,
-            workingHours: locForm.workingHours,
-            lat: parseFloat(locForm.lat),
-            lng: parseFloat(locForm.lng),
-            description: locForm.description,
-            accessibilityBadges: badgeArray,
-            utilities: badgeArray,
-          };
-        }
-        return loc;
-      });
-      setLocations(updated);
-      localStorage.setItem("hoa-nhap-map-locations", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã cập nhật thông tin địa điểm ${locForm.name}.`);
-    } else {
-      const newLoc = {
-        id: `loc-${Date.now()}`,
-        name: locForm.name,
-        category: locForm.category,
-        icon: locForm.category === "Cơ sở phục hồi chức năng" ? "local_hospital" : locForm.category === "Trung tâm giáo dục đặc biệt" ? "school" : "groups",
-        lat: parseFloat(locForm.lat),
-        lng: parseFloat(locForm.lng),
-        address: locForm.address,
-        phone: locForm.phone,
-        workingHours: locForm.workingHours,
-        distance: "0.0 km",
-        accessibilityBadges: badgeArray,
-        utilities: badgeArray,
-        description: locForm.description,
-      };
-      const updated = [newLoc, ...locations];
-      setLocations(updated);
-      localStorage.setItem("hoa-nhap-map-locations", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã thêm mới địa điểm ${locForm.name}.`);
+    const locationData = {
+      name: locForm.name,
+      category: locForm.category,
+      icon: locForm.category === "Cơ sở phục hồi chức năng" ? "local_hospital" : locForm.category === "Trung tâm giáo dục đặc biệt" ? "school" : "groups",
+      lat: parseFloat(locForm.lat),
+      lng: parseFloat(locForm.lng),
+      address: locForm.address,
+      phone: locForm.phone,
+      workingHours: locForm.workingHours,
+      distance: "0.0 km",
+      accessibilityBadges: badgeArray,
+      utilities: badgeArray,
+      description: locForm.description,
+    };
+
+    try {
+      if (editingLocId) {
+        await updateDoc(doc(db, "locations", editingLocId), locationData);
+        speakText(`Đã cập nhật thông tin địa điểm ${locForm.name}.`);
+      } else {
+        await addDoc(collection(db, "locations"), locationData);
+        speakText(`Đã thêm mới địa điểm ${locForm.name}.`);
+      }
+    } catch (err) {
+      console.error("Failed to save location:", err);
+      alert("Lỗi khi lưu địa điểm.");
     }
 
     setIsLocFormOpen(false);
@@ -591,71 +450,55 @@ export default function AdminPage() {
     setIsLocFormOpen(true);
   };
 
-  const handleDeleteLocation = (id) => {
+  const handleDeleteLocation = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa địa điểm này khỏi bản đồ?")) {
-      const updated = locations.filter((loc) => loc.id !== id);
-      setLocations(updated);
-      localStorage.setItem("hoa-nhap-map-locations", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText("Đã xóa địa điểm.");
+      try {
+        await deleteDoc(doc(db, "locations", id));
+        speakText("Đã xóa địa điểm.");
+        alert("Xóa địa điểm thành công!");
+      } catch (err) {
+        console.error("Failed to delete location:", err);
+        alert("Lỗi khi xóa địa điểm: " + err.message);
+      }
     }
   };
 
   // Save/Update Connections / Volunteers
-  const handleSaveConnection = (e) => {
+  const handleSaveConnection = async (e) => {
     e.preventDefault();
     if (!connForm.name || !connForm.email || !connForm.phone || !connForm.location) {
       alert("Vui lòng nhập đầy đủ thông tin bắt buộc.");
       return;
     }
 
-    if (editingConnId) {
-      const updated = connections.map((conn) => {
-        if (conn.id === editingConnId) {
-          return {
-            ...conn,
-            name: connForm.name,
-            type: connForm.type,
-            typeLabel: connForm.type === "tình nguyện viên" ? "Tình nguyện viên" : "Cộng đồng",
-            location: connForm.location,
-            region: connForm.region,
-            supportType: connForm.supportType,
-            description: connForm.description,
-            email: connForm.email,
-            phone: connForm.phone,
-            availability: connForm.availability,
-            details: connForm.details,
-          };
-        }
-        return conn;
-      });
-      setConnections(updated);
-      localStorage.setItem("hoa-nhap-connections", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã cập nhật hồ sơ kết nối của ${connForm.name}.`);
-    } else {
-      const newConn = {
-        id: `conn-${Date.now()}`,
-        name: connForm.name,
-        type: connForm.type,
-        typeLabel: connForm.type === "tình nguyện viên" ? "Tình nguyện viên" : "Cộng đồng",
-        location: connForm.location,
-        region: connForm.region,
-        supportType: connForm.supportType,
-        description: connForm.description || "Hồ sơ kết nối mới được tạo.",
-        email: connForm.email,
-        phone: connForm.phone,
-        availability: connForm.availability,
-        details: connForm.details,
-        avatarUrl: connForm.type === "tình nguyện viên"
-          ? "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200"
-          : "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=200",
-      };
-      const updated = [newConn, ...connections];
-      setConnections(updated);
-      localStorage.setItem("hoa-nhap-connections", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã thêm mới hồ sơ kết nối ${connForm.name}.`);
+    const connData = {
+      name: connForm.name,
+      type: connForm.type,
+      typeLabel: connForm.type === "tình nguyện viên" ? "Tình nguyện viên" : "Cộng đồng",
+      location: connForm.location,
+      region: connForm.region,
+      supportType: connForm.supportType,
+      description: connForm.description || "Hồ sơ kết nối mới được tạo.",
+      email: connForm.email,
+      phone: connForm.phone,
+      availability: connForm.availability,
+      details: connForm.details,
+      avatarUrl: connForm.type === "tình nguyện viên"
+        ? "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200"
+        : "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=200",
+    };
+
+    try {
+      if (editingConnId) {
+        await updateDoc(doc(db, "connections", editingConnId), connData);
+        speakText(`Đã cập nhật hồ sơ kết nối của ${connForm.name}.`);
+      } else {
+        await addDoc(collection(db, "connections"), { ...connData, status: "approved" });
+        speakText(`Đã thêm mới hồ sơ kết nối ${connForm.name}.`);
+      }
+    } catch (err) {
+      console.error("Failed to save connection:", err);
+      alert("Lỗi khi lưu hồ sơ kết nối.");
     }
 
     setIsConnFormOpen(false);
@@ -691,54 +534,58 @@ export default function AdminPage() {
     setIsConnFormOpen(true);
   };
 
-  const handleDeleteConnection = (id) => {
+  const handleDeleteConnection = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa hồ sơ kết nối này?")) {
-      const updated = connections.filter((conn) => conn.id !== id);
-      setConnections(updated);
-      localStorage.setItem("hoa-nhap-connections", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText("Đã xóa hồ sơ kết nối.");
+      try {
+        await deleteDoc(doc(db, "connections", id));
+        speakText("Đã xóa hồ sơ kết nối.");
+        alert("Xóa hồ sơ kết nối thành công!");
+      } catch (err) {
+        console.error("Failed to delete connection:", err);
+        alert("Lỗi khi xóa hồ sơ kết nối: " + err.message);
+      }
+    }
+  };
+
+  // Approve a pending volunteer request
+  const handleApproveConnection = async (id, name) => {
+    try {
+      await updateDoc(doc(db, "connections", id), { status: "approved" });
+      speakText(`Đã phê duyệt hồ sơ tình nguyện viên của ${name}.`);
+      alert("Phê duyệt thành công!");
+    } catch (err) {
+      console.error("Failed to approve connection:", err);
+      alert("Lỗi khi phê duyệt hồ sơ.");
     }
   };
 
   // Save/Update Welfare Office
-  const handleSaveOffice = (e) => {
+  const handleSaveOffice = async (e) => {
     e.preventDefault();
     if (!officeForm.name || !officeForm.address || !officeForm.phone) {
       alert("Vui lòng điền đầy đủ các thông tin bắt buộc.");
       return;
     }
 
-    if (editingOfficeId !== null) {
-      const updated = offices.map((off, idx) => {
-        if (idx === editingOfficeId) {
-          return {
-            city: officeForm.city,
-            name: officeForm.name,
-            address: officeForm.address,
-            phone: officeForm.phone,
-            email: officeForm.email,
-          };
-        }
-        return off;
-      });
-      setOffices(updated);
-      localStorage.setItem("hoa-nhap-welfare-offices", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã cập nhật cơ quan tiếp nhận ${officeForm.name}.`);
-    } else {
-      const newOff = {
-        city: officeForm.city,
-        name: officeForm.name,
-        address: officeForm.address,
-        phone: officeForm.phone,
-        email: officeForm.email,
-      };
-      const updated = [...offices, newOff];
-      setOffices(updated);
-      localStorage.setItem("hoa-nhap-welfare-offices", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText(`Đã thêm cơ quan tiếp nhận ${officeForm.name}.`);
+    const officeData = {
+      city: officeForm.city,
+      name: officeForm.name,
+      address: officeForm.address,
+      phone: officeForm.phone,
+      email: officeForm.email,
+    };
+
+    try {
+      if (editingOfficeId !== null) {
+        await updateDoc(doc(db, "welfareOffices", editingOfficeId), officeData);
+        speakText(`Đã cập nhật cơ quan tiếp nhận ${officeForm.name}.`);
+      } else {
+        await addDoc(collection(db, "welfareOffices"), officeData);
+        speakText(`Đã thêm cơ quan tiếp nhận ${officeForm.name}.`);
+      }
+    } catch (err) {
+      console.error("Failed to save office:", err);
+      alert("Lỗi khi lưu cơ quan tiếp nhận.");
     }
 
     setIsOfficeFormOpen(false);
@@ -752,8 +599,8 @@ export default function AdminPage() {
     });
   };
 
-  const handleEditOffice = (off, idx) => {
-    setEditingOfficeId(idx);
+  const handleEditOffice = (off) => {
+    setEditingOfficeId(off.id);
     setOfficeForm({
       city: off.city || "Hà Nội",
       name: off.name,
@@ -764,38 +611,42 @@ export default function AdminPage() {
     setIsOfficeFormOpen(true);
   };
 
-  const handleDeleteOffice = (idx) => {
+  const handleDeleteOffice = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa cơ quan tiếp nhận hồ sơ này?")) {
-      const updated = offices.filter((_, i) => i !== idx);
-      setOffices(updated);
-      localStorage.setItem("hoa-nhap-welfare-offices", JSON.stringify(updated));
-      window.dispatchEvent(new Event("storage"));
-      speakText("Đã xóa cơ quan tiếp nhận.");
+      try {
+        await deleteDoc(doc(db, "welfareOffices", id));
+        speakText("Đã xóa cơ quan tiếp nhận.");
+        alert("Xóa cơ quan tiếp nhận thành công!");
+      } catch (err) {
+        console.error("Failed to delete office:", err);
+        alert("Lỗi khi xóa cơ quan tiếp nhận: " + err.message);
+      }
     }
   };
 
   // Feedback Actions
-  const toggleFeedbackStatus = (id) => {
-    const updated = feedbacks.map((fb) => {
-      if (fb.id === id) {
-        const nextStatus = fb.status === "resolved" ? "pending" : "resolved";
-        speakText(`Đã đổi trạng thái góp ý thành ${nextStatus === "resolved" ? "Đã xử lý" : "Chưa xử lý"}`);
-        return { ...fb, status: nextStatus };
-      }
-      return fb;
-    });
-    setFeedbacks(updated);
-    localStorage.setItem("hoa-nhap-feedbacks", JSON.stringify(updated));
+  const toggleFeedbackStatus = async (id, currentStatus) => {
+    try {
+      const nextStatus = currentStatus === "resolved" ? "pending" : "resolved";
+      await updateDoc(doc(db, "feedbacks", id), { status: nextStatus });
+      speakText(`Đã đổi trạng thái góp ý thành ${nextStatus === "resolved" ? "Đã xử lý" : "Chưa xử lý"}`);
+    } catch (err) {
+      console.error("Failed to toggle feedback status:", err);
+    }
   };
 
-  const handleDeleteFeedback = (id) => {
+  const handleDeleteFeedback = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa góp ý này?")) {
-      const updated = feedbacks.filter((fb) => fb.id !== id);
-      setFeedbacks(updated);
-      localStorage.setItem("hoa-nhap-feedbacks", JSON.stringify(updated));
-      speakText("Đã xóa góp ý.");
-      if (viewingFeedback && viewingFeedback.id === id) {
-        setViewingFeedback(null);
+      try {
+        await deleteDoc(doc(db, "feedbacks", id));
+        speakText("Đã xóa góp ý.");
+        alert("Xóa góp ý thành công!");
+        if (viewingFeedback && viewingFeedback.id === id) {
+          setViewingFeedback(null);
+        }
+      } catch (err) {
+        console.error("Failed to delete feedback:", err);
+        alert("Lỗi khi xóa góp ý: " + err.message);
       }
     }
   };
@@ -995,7 +846,7 @@ export default function AdminPage() {
                     </tr>
                   ) : (
                     users.map((u) => (
-                      <tr key={u.email} className="border-b border-outline-variant/30 last:border-b-0" role="row">
+                      <tr key={u.id} className="border-b border-outline-variant/30 last:border-b-0" role="row">
                         <td className="py-3 pr-2" role="cell">
                           <div className="font-bold text-on-surface dark:text-inverse-on-surface">{u.fullName}</div>
                           <div className="text-[10px] text-on-surface-variant dark:text-tertiary-fixed-dim mt-0.5">{u.email}</div>
@@ -1018,7 +869,7 @@ export default function AdminPage() {
                           {u.role !== "admin" && (
                             <div className="flex justify-end gap-2">
                               <button
-                                onClick={() => toggleUserStatus(u.email)}
+                                onClick={() => toggleUserStatus(u.id, u.status)}
                                 title={u.status === "suspended" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
                                 className={`p-1.5 rounded-lg border transition-colors accessibility-focus ${
                                   u.status === "suspended" ? "border-teal-500 text-teal-600 hover:bg-teal-50" : "border-error text-error hover:bg-error-container/10"
@@ -1027,7 +878,7 @@ export default function AdminPage() {
                                 <Icon name={u.status === "suspended" ? "check" : "block"} size="text-sm" />
                               </button>
                               <button
-                                onClick={() => handleDeleteUser(u.email)}
+                                onClick={() => handleDeleteUser(u.id)}
                                 title="Xóa"
                                 className="p-1.5 rounded-lg border border-outline hover:bg-error-container/10 text-error hover:border-error transition-colors accessibility-focus"
                               >
@@ -1843,13 +1694,14 @@ export default function AdminPage() {
                       <th className="pb-3 font-bold text-on-surface-variant/70 uppercase" role="columnheader">Họ tên / Email</th>
                       <th className="pb-3 font-bold text-on-surface-variant/70 uppercase" role="columnheader">Phân loại</th>
                       <th className="pb-3 font-bold text-on-surface-variant/70 uppercase" role="columnheader">Địa bàn / Hỗ trợ</th>
+                      <th className="pb-3 font-bold text-on-surface-variant/70 uppercase text-center" role="columnheader">Trạng thái</th>
                       <th className="pb-3 font-bold text-on-surface-variant/70 uppercase text-right" role="columnheader">Hành động</th>
                     </tr>
                   </thead>
                   <tbody>
                     {connections.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="py-6 text-center text-on-surface-variant/60">Không có hồ sơ kết nối nào.</td>
+                        <td colSpan="5" className="py-6 text-center text-on-surface-variant/60">Không có hồ sơ kết nối nào.</td>
                       </tr>
                     ) : (
                       connections.map((conn) => (
@@ -1869,8 +1721,24 @@ export default function AdminPage() {
                             <div>{conn.region} ({conn.location})</div>
                             <div className="text-[10px] text-primary mt-0.5">{conn.supportType}</div>
                           </td>
+                          <td className="py-3 text-center" role="cell">
+                            <span className={`px-2 py-0.5 rounded font-bold text-[9px] uppercase ${
+                              conn.status === "approved" ? "bg-teal-100 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300" : "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
+                            }`}>
+                              {conn.status === "approved" ? "Đã duyệt" : "Chờ duyệt"}
+                            </span>
+                          </td>
                           <td className="py-3 text-right" role="cell">
                             <div className="flex justify-end gap-2">
+                              {conn.status !== "approved" && (
+                                <button
+                                  onClick={() => handleApproveConnection(conn.id, conn.name)}
+                                  title="Phê duyệt hồ sơ"
+                                  className="p-1.5 rounded-lg border border-teal-500 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-950/20 transition-colors accessibility-focus"
+                                >
+                                  <Icon name="check" size="text-sm" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleEditConnection(conn)}
                                 title="Sửa"
@@ -2039,8 +1907,8 @@ export default function AdminPage() {
                           <td colSpan="4" className="py-6 text-center text-on-surface-variant/60">Không có cơ quan tiếp nhận hồ sơ nào.</td>
                         </tr>
                       ) : (
-                        offices.map((off, idx) => (
-                          <tr key={idx} className="border-b border-outline-variant/30 last:border-b-0" role="row">
+                        offices.map((off) => (
+                          <tr key={off.id} className="border-b border-outline-variant/30 last:border-b-0" role="row">
                             <td className="py-3 pr-2" role="cell">
                               <div className="font-bold text-on-surface dark:text-inverse-on-surface">{off.name}</div>
                               <div className="text-[10px] text-on-surface-variant mt-0.5">{off.address}</div>
@@ -2053,14 +1921,14 @@ export default function AdminPage() {
                             <td className="py-3 text-right" role="cell">
                               <div className="flex justify-end gap-2">
                                 <button
-                                  onClick={() => handleEditOffice(off, idx)}
+                                  onClick={() => handleEditOffice(off)}
                                   title="Chỉnh sửa"
                                   className="p-1.5 rounded-lg border border-outline hover:bg-surface-variant/50 transition-colors accessibility-focus"
                                 >
                                   <Icon name="edit" size="text-sm" />
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteOffice(idx)}
+                                  onClick={() => handleDeleteOffice(off.id)}
                                   title="Xóa"
                                   className="p-1.5 rounded-lg border border-outline hover:bg-error-container/10 text-error hover:border-error transition-colors accessibility-focus"
                                 >
@@ -2142,7 +2010,7 @@ export default function AdminPage() {
                                   <Icon name="visibility" size="text-sm" />
                                 </button>
                                 <button
-                                  onClick={() => toggleFeedbackStatus(fb.id)}
+                                  onClick={() => toggleFeedbackStatus(fb.id, fb.status)}
                                   title={fb.status === "resolved" ? "Đánh dấu Chưa xử lý" : "Đánh dấu Đã xử lý"}
                                   className={`p-1.5 rounded-lg border transition-colors accessibility-focus ${
                                     fb.status === "resolved" ? "border-amber-500 text-amber-600 hover:bg-amber-50" : "border-teal-500 text-teal-600 hover:bg-teal-50"
@@ -2223,7 +2091,7 @@ export default function AdminPage() {
             <div className="p-4 border-t border-outline-variant/50 flex justify-end gap-3 bg-surface-container dark:bg-tertiary/40">
               <button
                 onClick={() => {
-                  toggleFeedbackStatus(viewingFeedback.id);
+                  toggleFeedbackStatus(viewingFeedback.id, viewingFeedback.status);
                   setViewingFeedback(null);
                 }}
                 className="bg-primary text-on-primary font-bold text-xs px-4 py-2 rounded-lg hover:bg-primary-container transition-all"

@@ -2,6 +2,8 @@ import { useState, useCallback } from "react";
 import { useAccessibility } from "../contexts/AccessibilityContext";
 import Icon from "../components/ui/Icon";
 import Button from "../components/ui/Button";
+import { db } from "../firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 export default function FeedbackPage() {
   const { state: accessState, speakText } = useAccessibility();
@@ -30,7 +32,7 @@ export default function FeedbackPage() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) {
       if (accessState.screenReader) {
@@ -39,9 +41,7 @@ export default function FeedbackPage() {
       return;
     }
 
-    // Save feedback to mock database (localStorage)
     const newFeedback = {
-      id: `fb-${Date.now()}`,
       name: form.name,
       contactInfo: form.contactInfo,
       feedbackType: form.feedbackType,
@@ -52,12 +52,9 @@ export default function FeedbackPage() {
       status: "pending"
     };
     try {
-      const saved = localStorage.getItem("hoa-nhap-feedbacks");
-      const list = saved ? JSON.parse(saved) : [];
-      list.unshift(newFeedback);
-      localStorage.setItem("hoa-nhap-feedbacks", JSON.stringify(list));
+      await addDoc(collection(db, "feedbacks"), newFeedback);
     } catch (err) {
-      console.error("Error saving feedback:", err);
+      console.error("Error saving feedback to Firestore:", err);
     }
 
     setSuccess(true);

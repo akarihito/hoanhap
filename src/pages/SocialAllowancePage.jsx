@@ -2,61 +2,42 @@ import { useState, useEffect } from "react";
 import { useAccessibility } from "../contexts/AccessibilityContext";
 import { useLanguage } from "../contexts/LanguageContext";
 import Icon from "../components/ui/Icon";
+import { db } from "../firebase";
+import { doc, collection, onSnapshot } from "firebase/firestore";
 
 export default function SocialAllowancePage() {
   const { speakText } = useAccessibility();
   const { language, t } = useLanguage();
 
-  // Load base rate and welfare offices dynamically
-  const [baseRate, setBaseRate] = useState(() => {
-    const saved = localStorage.getItem("allowance-base-rate");
-    return saved ? parseInt(saved, 10) : 360000;
-  });
+  // Load base rate and welfare offices dynamically from Firestore
+  const [baseRate, setBaseRate] = useState(360000);
+  const [offices, setOffices] = useState([]);
 
-  const [offices, setOffices] = useState(() => {
-    const DEFAULT_OFFICES = [
-      {
-        city: "Hà Nội",
-        name: "Sở Lao động - Thương binh và Xã hội Hà Nội",
-        address: "Số 75 Nguyễn Chí Thanh, Láng Hạ, Đống Đa, Hà Nội",
-        phone: "024 3835 8868",
-        email: "vanthu_soldsxh@hanoi.gov.vn",
-      },
-      {
-        city: "TP. Hồ Chí Minh",
-        name: "Sở Lao động - Thương binh và Xã hội TP.HCM",
-        address: "159 Pasteur, Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
-        phone: "028 3829 1302",
-        email: "sldtbxh@tphcm.gov.vn",
-      },
-      {
-        city: "Đà Nẵng",
-        name: "Sở Lao động - Thương binh và Xã hội Đà Nẵng",
-        address: "512 Ngô Quyền, An Hải Bắc, Sơn Trà, Đà Nẵng",
-        phone: "0236 3822 423",
-        email: "sldtbxh@danang.gov.vn",
-      },
-    ];
-    const saved = localStorage.getItem("hoa-nhap-welfare-offices");
-    if (saved) return JSON.parse(saved);
-    localStorage.setItem("hoa-nhap-welfare-offices", JSON.stringify(DEFAULT_OFFICES));
-    return DEFAULT_OFFICES;
-  });
-
-  // Keep synced with localStorage changes in real time
   useEffect(() => {
-    const handleStorageChange = () => {
-      const savedRate = localStorage.getItem("allowance-base-rate");
-      if (savedRate) {
-        setBaseRate(parseInt(savedRate, 10));
+    // 1. Sync system allowance standard rate
+    const settingsRef = doc(db, "settings", "system");
+    const unsubscribeSettings = onSnapshot(settingsRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.allowanceBaseRate !== undefined) {
+          setBaseRate(Number(data.allowanceBaseRate));
+        }
       }
-      const savedOffices = localStorage.getItem("hoa-nhap-welfare-offices");
-      if (savedOffices) {
-        setOffices(JSON.parse(savedOffices));
-      }
+    });
+
+    // 2. Sync municipal welfare offices list
+    const unsubscribeOffices = onSnapshot(collection(db, "welfareOffices"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setOffices(list);
+    });
+
+    return () => {
+      unsubscribeSettings();
+      unsubscribeOffices();
     };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Calculator inputs

@@ -79,6 +79,15 @@ const FAQ_DATABASE = [
       { label: "Tra cứu quyền lợi", to: "/quyen-loi" },
     ],
   },
+  {
+    keywords: ["diễn đàn", "forum", "chia sẻ", "tâm sự", "kết nối yêu thương"],
+    question: "Diễn đàn kết nối",
+    answer:
+      "Diễn đàn Kết nối yêu thương là không gian để bạn:\n\n• Chia sẻ mẹo vặt cuộc sống (Life-hacks) tự chế tác dụng cụ sinh hoạt.\n• Đăng nhật ký hành trình hòa nhập, chia sẻ cảm xúc tâm sự.\n• Đăng ký làm tình nguyện viên hoặc kêu gọi bạn đồng hành trực tiếp.\n• Tìm kiếm cơ hội học tập kỹ năng mềm và việc làm từ xa.\n\nTham gia thảo luận và kết nối yêu thương cùng cộng đồng ngay!",
+    links: [
+      { label: "Tham gia Diễn đàn", to: "/dien-dan" },
+    ],
+  },
 ];
 
 // ─── Suggestion Chips ───────────────────────────────────────────
@@ -89,6 +98,7 @@ const SUGGESTION_CHIPS = [
   "Hỗ trợ pháp lý",
   "Hỗ trợ y tế",
   "Giáo dục & Đào tạo",
+  "Diễn đàn kết nối",
 ];
 
 // ─── Response Matching ──────────────────────────────────────────

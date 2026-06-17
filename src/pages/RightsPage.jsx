@@ -1,6 +1,9 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAccessibility } from "../contexts/AccessibilityContext";
+import { useAuth } from "../contexts/AuthContext";
+import { db } from "../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 import Icon from "../components/ui/Icon";
 import Button from "../components/ui/Button";
 
@@ -260,33 +263,33 @@ function FocusTrapModal({ isOpen, onClose, title, children }) {
 export default function RightsPage() {
   const { state: accessState, speakText } = useAccessibility();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user, toggleSaveBenefit } = useAuth();
 
-  // Load policies and legal documents dynamically
-  const [policies, setPolicies] = useState(() => {
-    const stored = localStorage.getItem("hoa-nhap-policies");
-    if (stored) return JSON.parse(stored);
-    localStorage.setItem("hoa-nhap-policies", JSON.stringify(POLICIES_DATA));
-    return POLICIES_DATA;
-  });
+  // Load policies and legal documents dynamically from Firestore
+  const [policies, setPolicies] = useState([]);
+  const [documents, setDocuments] = useState([]);
 
-  const [documents, setDocuments] = useState(() => {
-    const stored = localStorage.getItem("hoa-nhap-legal-documents");
-    if (stored) return JSON.parse(stored);
-    localStorage.setItem("hoa-nhap-legal-documents", JSON.stringify(LEGAL_DOCUMENTS));
-    return LEGAL_DOCUMENTS;
-  });
-
-  // Sync with localStorage modifications in real-time
   useEffect(() => {
-    const handleStorageChange = () => {
-      const storedPol = localStorage.getItem("hoa-nhap-policies");
-      if (storedPol) setPolicies(JSON.parse(storedPol));
-      
-      const storedDocs = localStorage.getItem("hoa-nhap-legal-documents");
-      if (storedDocs) setDocuments(JSON.parse(storedDocs));
+    const unsubscribePol = onSnapshot(collection(db, "policies"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setPolicies(list);
+    });
+
+    const unsubscribeDocs = onSnapshot(collection(db, "documents"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setDocuments(list);
+    });
+
+    return () => {
+      unsubscribePol();
+      unsubscribeDocs();
     };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Filters State
@@ -304,7 +307,9 @@ export default function RightsPage() {
   }, [searchParams]);
 
   // Saved Bookmarks state
-  const [savedRights, setSavedRights] = useState([]);
+  const savedRights = useMemo(() => {
+    return user ? (user.savedBenefits || []) : [];
+  }, [user]);
 
   // Toast Notification state
   const [toastMessage, setToastMessage] = useState(null);
@@ -312,20 +317,8 @@ export default function RightsPage() {
   // Active details modal policy
   const [activeModalPolicy, setActiveModalPolicy] = useState(null);
 
-  // Load Bookmarks on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("hoa-nhap-saved-rights");
-      if (stored) {
-        setSavedRights(JSON.parse(stored));
-      }
-    } catch (err) {
-      console.warn("Failed to load saved rights from localStorage:", err);
-    }
-  }, []);
-
   // Show status toasts
-  const triggerToast = (msg) => {
+  const triggerToast = useCallback((msg) => {
     setToastMessage(msg);
     if (accessState.screenReader) {
       speakText(msg);
@@ -333,28 +326,31 @@ export default function RightsPage() {
     setTimeout(() => {
       setToastMessage(null);
     }, 2500);
-  };
+  }, [accessState.screenReader, speakText]);
 
   // Toggle bookmark policy
   const handleToggleBookmark = useCallback(
-    (e, policy) => {
+    async (e, policy) => {
       e.stopPropagation(); // Avoid triggering details modal
 
-      let updated = [];
-      const isSaved = savedRights.some((id) => id === policy.id);
-
-      if (isSaved) {
-        updated = savedRights.filter((id) => id !== policy.id);
-        triggerToast(`Đã bỏ lưu chính sách: ${policy.name}`);
-      } else {
-        updated = [...savedRights, policy.id];
-        triggerToast(`Đã lưu thành công chính sách: ${policy.name}`);
+      if (!user) {
+        triggerToast("Vui lòng đăng nhập để lưu quyền lợi này.");
+        return;
       }
 
-      setSavedRights(updated);
-      localStorage.setItem("hoa-nhap-saved-rights", JSON.stringify(updated));
+      try {
+        const isSaved = savedRights.includes(policy.id);
+        await toggleSaveBenefit(policy.id);
+        if (isSaved) {
+          triggerToast(`Đã bỏ lưu chính sách: ${policy.name}`);
+        } else {
+          triggerToast(`Đã lưu thành công chính sách: ${policy.name}`);
+        }
+      } catch (err) {
+        triggerToast("Đã xảy ra lỗi khi lưu quyền lợi.");
+      }
     },
-    [savedRights, accessState.screenReader, speakText]
+    [user, savedRights, toggleSaveBenefit, triggerToast]
   );
 
   // Reset page when filters change

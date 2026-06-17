@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: "/quyen-loi", labelKey: "rights" },
   { to: "/tro-cap", labelKey: "allowance" },
   { to: "/ket-noi", labelKey: "connection" },
+  { to: "/dien-dan", labelKey: "forum" },
   { to: "/ban-do", labelKey: "map" },
 ];
 

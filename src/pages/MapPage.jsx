@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useAccessibility } from "../contexts/AccessibilityContext";
+import { db } from "../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 import Icon from "../components/ui/Icon";
 import Button from "../components/ui/Button";
 
@@ -204,12 +206,18 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 export default function MapPage() {
   const { state, speakText } = useAccessibility();
-  const [locations, setLocations] = useState(() => {
-    const saved = localStorage.getItem("hoa-nhap-map-locations");
-    if (saved) return JSON.parse(saved);
-    localStorage.setItem("hoa-nhap-map-locations", JSON.stringify(INITIAL_LOCATIONS));
-    return INITIAL_LOCATIONS;
-  });
+  const [locations, setLocations] = useState([]);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "locations"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setLocations(list);
+    });
+    return unsubscribe;
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [activeLocation, setActiveLocation] = useState(null);

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import Icon from "../components/ui/Icon";
 import { useAccessibility } from "../contexts/AccessibilityContext";
+import { db } from "../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
 export default function NewsPage() {
   const { speakText } = useAccessibility();
@@ -15,86 +17,18 @@ export default function NewsPage() {
   const [duration, setDuration] = useState(0);
   const [captionsOn, setCaptionsOn] = useState(true);
 
-  // Articles data
-  const [articles, setArticles] = useState(() => {
-    const saved = localStorage.getItem("hoa-nhap-articles");
-    const defaultArticles = [
-      {
-        id: "art-1",
-        title: "Hướng dẫn đăng ký thẻ bảo hiểm y tế miễn phí cho người khuyết tật",
-        category: "phap-luat",
-        summary: "Chi tiết các bước từ việc xác định đối tượng, chuẩn bị hồ sơ đến việc nộp đơn tại cơ quan BHXH địa phương.",
-        date: "14/06/2026",
-        readTime: "5 phút đọc",
-        image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600",
-      },
-      {
-        id: "art-2",
-        title: "5 bài tập phục hồi chức năng vận động tại nhà đơn giản và an toàn",
-        category: "suc-khoe",
-        summary: "Các bài tập nhẹ nhàng giúp duy trì độ linh hoạt khớp xương và tăng cường tuần hoàn máu mà không cần dụng cụ chuyên dụng.",
-        date: "12/06/2026",
-        readTime: "8 phút đọc",
-        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600",
-      },
-      {
-        id: "art-3",
-        title: "Kinh nghiệm tìm kiếm việc làm hòa nhập dành cho người khiếm thính",
-        category: "doi-song",
-        summary: "Chia sẻ từ các bạn trẻ khiếm thính về cách vượt qua rào cản phỏng vấn, tận dụng các công nghệ hỗ trợ giao tiếp hiệu quả.",
-        date: "10/06/2026",
-        readTime: "6 phút đọc",
-        image: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&q=80&w=600",
-      },
-      {
-        id: "art-4",
-        title: "Các điều khoản mới nhất trong Luật Người khuyết tật có hiệu lực năm 2026",
-        category: "phap-luat",
-        summary: "Phân tích những điểm thay đổi quan trọng về mức trợ cấp xã hội, chính sách ưu tiên đào tạo nghề và tuyển dụng lao động.",
-        date: "08/06/2026",
-        readTime: "10 phút đọc",
-        image: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=600",
-      },
-    ];
+  // Articles data loaded from Firestore
+  const [articles, setArticles] = useState([]);
 
-    const savedParsed = saved ? JSON.parse(saved) : [];
-    // Combine saved ones with default
-    const combined = [...savedParsed, ...defaultArticles];
-    // De-duplicate by title
-    const unique = [];
-    const seen = new Set();
-    for (const item of combined) {
-      if (!seen.has(item.title)) {
-        seen.add(item.title);
-        unique.push(item);
-      }
-    }
-    return unique;
-  });
-
-  // Keep synced with localStorage changes in real time (e.g. from Admin page)
   useEffect(() => {
-    const handleStorageChange = () => {
-      const saved = localStorage.getItem("hoa-nhap-articles");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setArticles((prev) => {
-          const defaultArticles = prev.filter(a => !a.id.startsWith("admin-art-"));
-          const combined = [...parsed, ...defaultArticles];
-          const unique = [];
-          const seen = new Set();
-          for (const item of combined) {
-            if (!seen.has(item.title)) {
-              seen.add(item.title);
-              unique.push(item);
-            }
-          }
-          return unique;
-        });
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    const unsubscribe = onSnapshot(collection(db, "articles"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setArticles(list);
+    });
+    return unsubscribe;
   }, []);
 
   // Video script & transcript database
