@@ -5,7 +5,8 @@ import {
   addDoc, 
   doc, 
   getDoc, 
-  setDoc 
+  setDoc,
+  updateDoc
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import {
@@ -97,6 +98,24 @@ export async function seedDatabase() {
         allowanceBaseRate: 360000
       });
       console.log("Seeded system settings.");
+    }
+
+    // 9. Fix forum_posts structure if needed
+    try {
+      const forumRef = collection(db, "forum_posts");
+      const snap = await getDocs(forumRef);
+      for (const docSnap of snap.docs) {
+        const data = docSnap.data();
+        if (!data.content && data.comments && data.comments.content) {
+          await updateDoc(docSnap.ref, {
+            content: data.comments.content,
+            comments: []
+          });
+          console.log(`Fixed forum_posts document: ${docSnap.id}`);
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fix forum_posts:", err);
     }
 
     console.log("Firebase Database Seeding check complete.");
