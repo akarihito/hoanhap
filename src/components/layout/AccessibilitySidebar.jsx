@@ -146,24 +146,7 @@ export default function AccessibilitySidebar() {
           </span>
         </button>
 
-        {/* Tool 6: Keyboard Navigation */}
-        <button
-          onClick={toggleKeyboardNav}
-          aria-label={t("sidebar_keyboard_desc")}
-          aria-pressed={state.keyboardNav}
-          className={`sidebar-tool-btn group transition-all duration-200 rounded-xl ${
-            state.keyboardNav ? activeClasses : inactiveClasses
-          }`}
-        >
-          <Icon
-            name="keyboard"
-            size="text-2xl"
-            className="group-hover:scale-110 transition-transform"
-          />
-          <span className="icon-label">
-            {t("sidebar_keyboard")}
-          </span>
-        </button>
+
 
         {/* Spacer — pushes SOS to bottom */}
         <div className="flex-grow" aria-hidden="true" />

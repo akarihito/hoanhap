@@ -34,6 +34,7 @@ export default function AdminPage() {
   const [connections, setConnections] = useState([]);
   const [offices, setOffices] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
+  const [forumPosts, setForumPosts] = useState([]);
 
   // Base rate config
   const [allowanceRate, setAllowanceRate] = useState(360000);
@@ -186,6 +187,15 @@ export default function AdminPage() {
       setFeedbacks(list);
     });
 
+    // 9. Sync Forum Posts
+    const unsubscribeForumPosts = onSnapshot(collection(db, "forum_posts"), (snapshot) => {
+      const list = [];
+      snapshot.forEach((d) => {
+        list.push({ id: d.id, ...d.data() });
+      });
+      setForumPosts(list);
+    });
+
     return () => {
       unsubscribeUsers();
       unsubscribeSettings();
@@ -195,6 +205,7 @@ export default function AdminPage() {
       unsubscribeConnections();
       unsubscribeOffices();
       unsubscribeFeedbacks();
+      unsubscribeForumPosts();
     };
   }, []);
 
@@ -651,6 +662,19 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteForumPost = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa bài viết diễn đàn này?")) {
+      try {
+        await deleteDoc(doc(db, "forum_posts", id));
+        speakText("Đã xóa bài viết.");
+        alert("Xóa bài viết thành công!");
+      } catch (err) {
+        console.error("Failed to delete forum post:", err);
+        alert("Lỗi khi xóa bài viết: " + err.message);
+      }
+    }
+  };
+
   return (
     <div className="flex-1 bg-surface-container-lowest dark:bg-tertiary/20 theme-transition pb-24 animate-[fadeIn_0.2s_ease-out]">
       {/* ─── Header Section ─── */}
@@ -720,13 +744,22 @@ export default function AdminPage() {
             3. Hồ sơ kết nối ({connections.length})
           </button>
           <button
+            onClick={() => setActiveTab("forum")}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all accessibility-focus whitespace-nowrap ${
+              activeTab === "forum" ? "bg-primary text-on-primary shadow-sm" : "text-on-surface-variant hover:bg-surface-variant/40"
+            }`}
+          >
+            <Icon name="forum" size="text-sm" />
+            4. Diễn đàn ({forumPosts.length})
+          </button>
+          <button
             onClick={() => setActiveTab("allowance")}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all accessibility-focus whitespace-nowrap ${
               activeTab === "allowance" ? "bg-primary text-on-primary shadow-sm" : "text-on-surface-variant hover:bg-surface-variant/40"
             }`}
           >
             <Icon name="payments" size="text-sm" />
-            4. Trợ cấp & Cơ quan ({offices.length})
+            5. Trợ cấp & Cơ quan ({offices.length})
           </button>
         </div>
       </section>
@@ -1764,7 +1797,78 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+        {/* ── Tab 4: Forum Posts ── */}
+        {activeTab === "forum" && (
+          <div className="space-y-6 animate-[fadeIn_0.15s_ease-out]">
+            <div className="flex justify-between items-center bg-surface-container dark:bg-tertiary border-2 border-outline-variant dark:border-outline rounded-2xl p-4 md:p-6 shadow-sm theme-transition">
+              <div>
+                <h2 className="font-bold text-base text-on-surface dark:text-inverse-on-surface flex items-center gap-2">
+                  <Icon name="forum" className="text-primary" />
+                  Quản lý Bài viết Diễn đàn
+                </h2>
+                <p className="text-xs text-on-surface-variant dark:text-tertiary-fixed-dim">
+                  Xem và quản lý các bài đăng của người dùng trên Diễn đàn Kết nối.
+                </p>
+              </div>
+            </div>
 
+            <div className="bg-surface-container dark:bg-tertiary border-2 border-outline-variant dark:border-outline rounded-3xl p-6 shadow-sm theme-transition">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs" role="table">
+                  <thead>
+                    <tr className="border-b border-outline-variant/60" role="row">
+                      <th className="pb-3 font-bold text-on-surface-variant/70 uppercase" role="columnheader">Nội dung bài viết</th>
+                      <th className="pb-3 font-bold text-on-surface-variant/70 uppercase" role="columnheader">Thông tin</th>
+                      <th className="pb-3 font-bold text-on-surface-variant/70 uppercase text-center" role="columnheader">Tương tác</th>
+                      <th className="pb-3 font-bold text-on-surface-variant/70 uppercase text-right" role="columnheader">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {forumPosts.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="py-6 text-center text-on-surface-variant/60">Không có bài viết diễn đàn nào.</td>
+                      </tr>
+                    ) : (
+                      forumPosts.map((post) => (
+                        <tr key={post.id} className="border-b border-outline-variant/30 last:border-b-0" role="row">
+                          <td className="py-3 pr-2 w-1/2" role="cell">
+                            <div className="font-bold text-on-surface dark:text-inverse-on-surface line-clamp-2">{post.content}</div>
+                            <div className="text-[10px] text-on-surface-variant dark:text-tertiary-fixed-dim mt-0.5">{new Date(post.createdAt).toLocaleString("vi-VN")}</div>
+                          </td>
+                          <td className="py-3" role="cell">
+                            <span className="px-2 py-0.5 rounded font-bold text-[9px] uppercase bg-surface-variant dark:bg-tertiary-container text-on-surface-variant">
+                              {post.subType}
+                            </span>
+                            <div className="text-[10px] text-on-surface-variant dark:text-tertiary-fixed-dim mt-1.5 flex items-center gap-1">
+                              <Icon name="person" size="text-[10px]" /> {post.authorName}
+                            </div>
+                          </td>
+                          <td className="py-3 text-center" role="cell">
+                            <div className="flex items-center justify-center gap-3 text-on-surface-variant">
+                              <span className="flex items-center gap-1" title="Lượt thích"><Icon name="thumb_up" size="text-[12px]" /> {post.likesCount || 0}</span>
+                              <span className="flex items-center gap-1" title="Bình luận"><Icon name="chat_bubble" size="text-[12px]" /> {(post.comments || []).length}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 text-right" role="cell">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => handleDeleteForumPost(post.id)}
+                                title="Xóa bài viết"
+                                className="p-1.5 rounded-lg border border-outline hover:bg-error-container/10 text-error hover:border-error transition-colors accessibility-focus"
+                              >
+                                <Icon name="delete" size="text-sm" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
         {/* ── Tab 6: Social Allowance Offices & Feedbacks ── */}
         {activeTab === "allowance" && (
           <div className="space-y-8 animate-[fadeIn_0.15s_ease-out]">

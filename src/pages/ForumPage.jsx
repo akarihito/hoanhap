@@ -42,7 +42,7 @@ const FORUM_BOARDS = {
   }
 };
 
-export default function ForumPage() {
+export default function ForumPage({ isTab = false }) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
   const { speakText } = useAccessibility();
@@ -284,35 +284,37 @@ export default function ForumPage() {
   return (
     <div className="flex-1 bg-surface-container-lowest dark:bg-tertiary/20 theme-transition pb-24">
       {/* ─── Hero Header ─── */}
-      <section className="relative w-full bg-primary text-on-primary dark:bg-primary-fixed dark:text-on-primary-fixed border-b-2 border-primary-container p-8">
-        <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="font-headline-xl text-headline-xl mb-2 flex items-center gap-2">
-              <Icon name="forum" size="text-4xl" />
-              {language === "en" ? "Empathy Forum" : "Diễn đàn Kết nối yêu thương"}
-            </h1>
-            <p className="text-sm opacity-90 max-w-xl">
-              {language === "en" 
-                ? "A safe space to share lifetips, diaries, find companions, and support each other."
-                : "Không gian an toàn chia sẻ mẹo vặt cuộc sống, viết nhật ký hòa nhập, tìm bạn đồng hành và kết nối hỗ trợ."}
-            </p>
+      {!isTab && (
+        <section className="relative w-full bg-primary text-on-primary dark:bg-primary-fixed dark:text-on-primary-fixed border-b-2 border-primary-container p-8">
+          <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="font-headline-xl text-headline-xl mb-2 flex items-center gap-2">
+                <Icon name="forum" size="text-4xl" />
+                {language === "en" ? "Empathy Forum" : "Diễn đàn Kết nối yêu thương"}
+              </h1>
+              <p className="text-sm opacity-90 max-w-xl">
+                {language === "en" 
+                  ? "A safe space to share lifetips, diaries, find companions, and support each other."
+                  : "Không gian an toàn chia sẻ mẹo vặt cuộc sống, viết nhật ký hòa nhập, tìm bạn đồng hành và kết nối hỗ trợ."}
+              </p>
+            </div>
+            
+            <button
+              onClick={() => {
+                if (!user) {
+                  alert(language === "en" ? "Please sign in to write a post!" : "Vui lòng đăng nhập để viết bài!");
+                  return;
+                }
+                setIsNewPostOpen(true);
+              }}
+              className="bg-primary-container text-on-primary-container font-bold px-5 py-3 rounded-xl hover:bg-secondary-container hover:text-on-secondary-container transition-all shadow-md flex items-center gap-2 accessibility-focus active:scale-95 text-sm"
+            >
+              <Icon name="add" size="text-lg" />
+              {language === "en" ? "New Thread" : "Viết bài mới"}
+            </button>
           </div>
-          
-          <button
-            onClick={() => {
-              if (!user) {
-                alert(language === "en" ? "Please sign in to write a post!" : "Vui lòng đăng nhập để viết bài!");
-                return;
-              }
-              setIsNewPostOpen(true);
-            }}
-            className="bg-primary-container text-on-primary-container font-bold px-5 py-3 rounded-xl hover:bg-secondary-container hover:text-on-secondary-container transition-all shadow-md flex items-center gap-2 accessibility-focus active:scale-95 text-sm"
-          >
-            <Icon name="add" size="text-lg" />
-            {language === "en" ? "New Thread" : "Viết bài mới"}
-          </button>
-        </div>
-      </section>
+        </section>
+      )}
 
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
         
@@ -383,16 +385,33 @@ export default function ForumPage() {
               ))}
             </div>
 
-            {/* Search Input */}
-            <div className="relative w-full md:w-64">
-              <input
-                type="text"
-                placeholder={language === "en" ? "Search posts..." : "Tìm bài viết..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface-container-high dark:bg-tertiary-container border border-outline rounded-xl pl-8 pr-3 py-1.5 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary theme-transition"
-              />
-              <Icon name="search" className="absolute left-2.5 top-2 text-outline-variant text-sm" />
+            {/* Search Input & Action Button */}
+            <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+              <div className="relative w-full md:w-64">
+                <input
+                  type="text"
+                  placeholder={language === "en" ? "Search posts..." : "Tìm bài viết..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-surface-container-high dark:bg-tertiary-container border border-outline rounded-xl pl-8 pr-3 py-2 text-xs text-on-surface focus:outline-none focus:ring-1 focus:ring-primary theme-transition"
+                />
+                <Icon name="search" className="absolute left-2.5 top-2.5 text-outline-variant text-sm" />
+              </div>
+              {isTab && (
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      alert(language === "en" ? "Please sign in to write a post!" : "Vui lòng đăng nhập để viết bài!");
+                      return;
+                    }
+                    setIsNewPostOpen(true);
+                  }}
+                  className="w-full md:w-auto bg-primary text-on-primary font-bold px-4 py-2 rounded-xl hover:bg-primary-container hover:text-on-primary-container transition-all shadow-sm flex items-center justify-center gap-2 accessibility-focus active:scale-95 text-xs whitespace-nowrap"
+                >
+                  <Icon name="add" size="text-sm" />
+                  {language === "en" ? "New Thread" : "Viết bài mới"}
+                </button>
+              )}
             </div>
           </div>
 

@@ -226,7 +226,7 @@ function FocusTrapModal({ isOpen, onClose, title, children }) {
   );
 }
 
-export default function ConnectionPage() {
+export default function ConnectionPage({ isTab = false }) {
   const [connections, setConnections] = useState([]);
 
   useEffect(() => {
@@ -359,46 +359,48 @@ export default function ConnectionPage() {
     <div className="flex-1 bg-surface-container-lowest dark:bg-tertiary/20 theme-transition pb-20">
       
       {/* ─── Hero Section ─── */}
-      <section className="relative w-full min-h-[360px] flex items-center bg-primary-container dark:bg-primary-fixed border-b-2 border-primary overflow-hidden">
-        <div className="absolute inset-0 z-0 flex items-center justify-center opacity-30 mix-blend-overlay">
-          <img
-            alt="Đồ họa hình trái tim kết nối cộng đồng"
-            className="w-full h-full object-cover"
-            src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=1200"
-          />
-        </div>
-        <div className="relative z-10 max-w-[1440px] mx-auto px-gutter w-full py-12 md:py-16">
-          <div className="max-w-2xl">
-            <h1 className="font-headline-xl text-headline-xl text-on-primary-container dark:text-on-primary-fixed mb-4">
-              Kết nối yêu thương
-            </h1>
-            <p className="font-body-lg text-body-lg text-on-primary-container/90 dark:text-on-primary-fixed/90 mb-8 leading-relaxed">
-              Nơi kết nối bạn với những tấm lòng hảo tâm và cộng đồng sẵn sàng hỗ trợ, chia sẻ những khó khăn trong cuộc sống thường nhật.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button
-                variant="primary"
-                onClick={() => setIsRegisterOpen(true)}
-                className="h-14 px-8 rounded-full shadow-lg"
-              >
-                Tham gia kết nối
-              </Button>
-              <button
-                onClick={() => {
-                  const el = document.getElementById("search-section");
-                  el?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="h-14 px-8 border-2 border-on-primary-container dark:border-outline text-on-primary-container dark:text-on-primary-fixed font-semibold rounded-full hover:bg-on-primary-container hover:text-primary transition-all accessibility-focus"
-              >
-                Tìm hiểu thêm
-              </button>
+      {!isTab && (
+        <section className="relative w-full min-h-[360px] flex items-center bg-primary-container dark:bg-primary-fixed border-b-2 border-primary overflow-hidden">
+          <div className="absolute inset-0 z-0 flex items-center justify-center opacity-30 mix-blend-overlay">
+            <img
+              alt="Đồ họa hình trái tim kết nối cộng đồng"
+              className="w-full h-full object-cover"
+              src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=1200"
+            />
+          </div>
+          <div className="relative z-10 max-w-[1440px] mx-auto px-gutter w-full py-12 md:py-16">
+            <div className="max-w-2xl">
+              <h1 className="font-headline-xl text-headline-xl text-on-primary-container dark:text-on-primary-fixed mb-4">
+                Kết nối yêu thương
+              </h1>
+              <p className="font-body-lg text-body-lg text-on-primary-container/90 dark:text-on-primary-fixed/90 mb-8 leading-relaxed">
+                Nơi kết nối bạn với những tấm lòng hảo tâm và cộng đồng sẵn sàng hỗ trợ, chia sẻ những khó khăn trong cuộc sống thường nhật.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Button
+                  variant="primary"
+                  onClick={() => setIsRegisterOpen(true)}
+                  className="h-14 px-8 rounded-full shadow-lg"
+                >
+                  Tham gia kết nối
+                </Button>
+                <button
+                  onClick={() => {
+                    const el = document.getElementById("search-section");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="h-14 px-8 border-2 border-on-primary-container dark:border-outline text-on-primary-container dark:text-on-primary-fixed font-semibold rounded-full hover:bg-on-primary-container hover:text-primary transition-all accessibility-focus"
+                >
+                  Tìm hiểu thêm
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ─── Search & Filters Panel ─── */}
-      <section id="search-section" className="max-w-[1440px] mx-auto px-gutter py-12">
+      <section id="search-section" className={`max-w-[1440px] mx-auto px-gutter ${isTab ? "py-8" : "py-12"}`}>
         <form
           onSubmit={handleFilterSubmit}
           className="bg-surface-container dark:bg-tertiary border-2 border-outline-variant dark:border-outline rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-end gap-6 theme-transition"

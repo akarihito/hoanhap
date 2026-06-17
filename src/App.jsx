@@ -8,7 +8,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
-import ConnectionPage from "./pages/ConnectionPage";
+import CommunityPage from "./pages/CommunityPage";
 import SupportMapPage from "./pages/MapPage";
 import RightsPage from "./pages/RightsPage";
 import FeedbackPage from "./pages/FeedbackPage";
@@ -17,7 +17,6 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import SocialAllowancePage from "./pages/SocialAllowancePage";
 import AdminPage from "./pages/AdminPage";
-import ForumPage from "./pages/ForumPage";
 
 /**
  * App — Root application component
@@ -50,9 +49,8 @@ export default function App() {
 
                 {/* ── Phase 3: Core Modules ── */}
                 <Route path="/quyen-loi" element={<RightsPage />} />
-                <Route path="/ket-noi" element={<ConnectionPage />} />
+                <Route path="/ket-noi" element={<CommunityPage />} />
                 <Route path="/ban-do" element={<SupportMapPage />} />
-                <Route path="/dien-dan" element={<ForumPage />} />
 
                 {/* ── Additional Completed Pages ── */}
                 <Route path="/gop-y" element={<FeedbackPage />} />

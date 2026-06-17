@@ -90,15 +90,17 @@ export default function useTTSFocusHandler() {
   const { state, speakText, stopSpeaking } = useAccessibility();
   const debounceRef = useRef(null);
 
+  const stateRef = useRef(state.screenReader);
   useEffect(() => {
-    // Only attach listeners when screenReader mode is ON
-    if (!state.screenReader) return;
+    stateRef.current = state.screenReader;
+  }, [state.screenReader]);
 
-    /**
-     * Debounced speak to avoid rapid-fire speech when focus/hover
-     * moves quickly across multiple elements.
-     */
+  useEffect(() => {
+    // We attach listeners globally once, and use stateRef to decide whether to speak.
+    // This prevents any issues with listeners not being removed properly.
+    
     function debouncedSpeak(text) {
+      if (!stateRef.current) return;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         speakText(text);
@@ -107,6 +109,7 @@ export default function useTTSFocusHandler() {
 
     // ── Focus handler (keyboard Tab navigation) ──
     function handleFocusIn(e) {
+      if (!stateRef.current) return;
       const el = e.target;
       if (!el || el === document.body) return;
 
@@ -120,6 +123,7 @@ export default function useTTSFocusHandler() {
 
     // ── Hover handler (mouse users) ──
     function handleMouseOver(e) {
+      if (!stateRef.current) return;
       const el = e.target?.closest?.(INTERACTIVE_SELECTOR) ||
                  e.target?.closest?.(TEXT_SELECTOR);
       if (!el) return;
@@ -149,7 +153,7 @@ export default function useTTSFocusHandler() {
       document.removeEventListener("focusout", handleLeave, true);
       document.removeEventListener("mouseout", handleLeave, true);
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      stopSpeaking();
+      // We don't stopSpeaking here to avoid interrupting intentional speech
     };
-  }, [state.screenReader, speakText, stopSpeaking]);
+  }, [speakText, stopSpeaking]);
 }

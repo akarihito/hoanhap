@@ -255,13 +255,20 @@ export function AccessibilityProvider({ children }) {
     }
   }, [state.screenReader, stopSpeaking]);
 
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
   // ── TTS: speakText(text) ──────────────────────────────────────
   // Uses Web Speech API with optimized Vietnamese voice selection.
   // Falls back to Google Translate TTS if no Vietnamese voice is installed.
   const speakText = useCallback(
     (text, force = false) => {
       if (!text || typeof window === "undefined") return;
-      if (!state?.screenReader && !force) return;
+      
+      // Bulletproof check using the latest state ref
+      if (!stateRef.current?.screenReader && !force) return;
 
       // Interrupt any active speech
       stopSpeaking();
